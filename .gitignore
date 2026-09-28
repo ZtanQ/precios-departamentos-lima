@@ -1,0 +1,26 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Datos: el Excel original pesa 65 MB; en el repo va la copia en Parquet
+data/raw/*.xlsx
+data/processed/*
+!data/processed/.gitkeep
+
+# Modelos entrenados (se regeneran ejecutando los notebooks)
+models/*
+!models/.gitkeep
+
+# Sistema operativo y editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
