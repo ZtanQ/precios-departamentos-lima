@@ -43,7 +43,10 @@ precios-departamentos-lima/
 │   └── 03_preparacion_y_modelos.ipynb  # limpieza, pipeline, modelos y evaluación
 ├── src/
 │   ├── config.py     # rutas y decisiones compartidas (año de corte, semilla, columnas)
-│   └── datos.py      # cargar_datos(): carga única para todo el equipo
+│   ├── datos.py      # cargar_datos(): carga única para todo el equipo
+│   ├── limpieza.py   # reglas de limpieza propuestas (notebook 01)
+│   ├── baseline.py   # regla de mercado (distrito × m²) como estimador de scikit-learn
+│   └── metricas.py   # métricas comunes para comparar todos los modelos
 ├── scripts/
 │   └── convertir_excel_a_parquet.py
 ├── models/           # modelos entrenados (fuera de Git)
@@ -107,13 +110,30 @@ df = cargar_datos()
 ## Estado del TP1
 
 - [x] Estructura del repositorio y carga de datos
-- [ ] Definición del problema y ficha técnica (notebook 01)
+- [x] Definición del problema, ficha técnica, reglas de limpieza propuestas y baseline de mercado (notebook 01)
 - [ ] EDA con interpretaciones (notebook 02)
 - [ ] Reglas de limpieza acordadas por el equipo
 - [ ] Pipeline, baselines y modelos (notebook 03)
 - [ ] Notebook final consolidado
 - [ ] Plan hacia el TF1
 - [ ] Presentación (PDF o PPTX)
+
+## Decisiones de herramientas
+
+Cada herramienta se eligió por un rasgo concreto de nuestros datos. Se actualiza hacia el TF1.
+
+| Necesidad | Etapa | Herramienta elegida | Alternativa considerada | Justificación |
+| --- | --- | --- | --- | --- |
+| Carga y manipulación | TP1 | pandas | Excel / Power Query | Son 120 mil filas con reglas que hay que repetir igual cada vez. En Excel las correcciones son manuales y no quedan registradas |
+| EDA | TP1 | Matplotlib + Seaborn | ydata-profiling (reporte automático) | El EDA gira alrededor del tiempo y del distrito. Un reporte automático no detecta que piso = 0 depende del año; solo muestra que hay muchos ceros |
+| Preparación | TP1 | scikit-learn: Pipeline + ColumnTransformer + SimpleImputer + OneHotEncoder | Limpieza manual en pandas antes de separar | El pipeline ajusta imputación y codificación solo con el entrenamiento, lo que evita fuga, y se reutiliza tal cual en la app |
+| Transformación del objetivo | TP1 | TransformedTargetRegressor (logaritmo del precio) | Precio sin transformar | El precio va de US$190 a US$3.4 M. En escala logarítmica el modelo aprende errores relativos, que es como se negocia un precio |
+| Baseline | TP1 | DummyRegressor + regla de mercado (`src/baseline.py`) | Solo DummyRegressor | El Dummy es fácil de superar (32% de error mediano). La regla de mercado (15%) es la referencia real de un tasador |
+| Modelamiento | TP1 | Ridge y un modelo de árboles (Random Forest o HistGradientBoosting) | Redes neuronales / AutoML | Ridge es fácil de explicar. Los árboles captan combinaciones, como que una cochera valga distinto según el distrito. Para datos tabulares de este tamaño, una red neuronal no se justifica |
+| Experimentación | TF1 | Optuna + validación temporal (TimeSeriesSplit) + MLflow | GridSearchCV con validación aleatoria | Optuna explora más combinaciones en menos tiempo. La validación debe respetar el orden temporal |
+| Interpretabilidad | TF1 | SHAP | Importancia de variables del Random Forest | SHAP explica cada predicción ("sube US$12 mil por estar en San Isidro"), que es lo que un usuario quiere saber |
+| Despliegue | TF1 | Streamlit | FastAPI | El usuario final es una persona que ingresa datos de un departamento. FastAPI tendría sentido si otra aplicación consumiera el modelo |
+| Reproducibilidad | TP1 y TF1 | Git + requirements.txt | Carpeta compartida en Drive | Cuatro personas trabajan en paralelo; Git registra quién cambió qué y permite volver atrás |
 
 ## Uso de herramientas de IA generativa
 
