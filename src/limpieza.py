@@ -32,7 +32,7 @@ def eliminar_duplicados(df: pd.DataFrame) -> pd.DataFrame:
 def corregir_valores_imposibles(df: pd.DataFrame) -> pd.DataFrame:
     """Reglas 6, 7 y 8: convierte en faltante lo que no puede ser cierto."""
     df = df.copy()
-    df.loc[~df["vista_exterior"].isin([0, 1]), "vista_exterior"] = np.nan
+    # df.loc[~df["vista_exterior"].isin([0, 1]), "vista_exterior"] = np.nan
     baños_validos = (df["banos"] * 2) % 1 == 0          # enteros o medios baños
     df.loc[~baños_validos, "banos"] = np.nan
     df.loc[df["antiguedad_anios"] > 150, "antiguedad_anios"] = np.nan
