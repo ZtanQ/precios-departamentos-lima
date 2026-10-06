@@ -596,7 +596,7 @@ Al analizar el gráfico de dispersión de valores reales frente a predichos (Fig
 \begin{enumerate}[leftmargin=1.5cm]
     \item \textbf{Alta fidelidad en el segmento estándar:} Entre US\$ 50,000 y US\$ 250,000, los puntos se alinean con extraordinaria densidad a lo largo de la diagonal ideal ($y = \widehat{y}$).
     \item \textbf{Techo predictivo en el segmento de ultralujo ($> \text{US\$} 350,000$):} El modelo tiende a aplanar la curva, subestimando sistemáticamente los departamentos de lujo extremo. La causa raíz radica en la ausencia de atributos cualitativos en la base del BCRP (acabados de lujo, diseño arquitectónico, vista directa al mar o campos de golf).
-    \item \textbf{Disparidad periférica:} En distritos con escasa masa crítica en entrenamiento (ej. San Martín de Porres o Carabayllo), los errores relativos crecen sustancialmente producto del desbalance muestral geográfico histórico.
+    \item \textbf{Disparidad periférica:} En distritos con escasa masa crítica en entrenamiento (ej. Carabayllo), los errores relativos crecen sustancialmente producto del desbalance muestral geográfico histórico.
 \end{enumerate}
 
 % ==============================================================================
@@ -609,7 +609,7 @@ Al analizar el gráfico de dispersión de valores reales frente a predichos (Fig
     \item El modelado con Machine Learning supervisado (especialmente CatBoost y Random Forest) sobre la variable objetivo transformada logarítmicamente reduce el error mediano a un competitivo \textbf{11.3\%}, demostrando viabilidad y utilidad comercial práctica.
     \item El momento del mercado y la localización distrital dominan la varianza, pero la dotación de cocheras y antigüedad explican los diferenciales finos entre pares comparables.
 \end{itemize}
-
+san 
 \subsection{Problemas No Resueltos y Limitaciones Identificadas}
 \begin{enumerate}[leftmargin=1.5cm]
     \item \textbf{Subestimación en ultralujo:} El modelo no cuenta con descriptores para capturar el valor intangible en propiedades que superan los US\$ 400,000.

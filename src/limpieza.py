@@ -74,21 +74,47 @@ class FiltroPrecioM2Extremo:
         ratio = self._precio_m2(df) / ref
         return (ratio < self.minimo) | (ratio > self.maximo)
 
+def descartar_distritos_baja_frecuencia(
+    df: pd.DataFrame, 
+    min_anuncios: int = 10, 
+    col_distrito: str = "distrito"
+) -> pd.DataFrame:
+    """Elimina anuncios de distritos con un conteo menor a `min_anuncios`.
+    
+    Evita incluir distritos con tamaño muestral marginal (ej. N=1 en San Martín 
+    de Porres o Callao) que distorsionan el diagnóstico y generan categorías 
+    inéditas en particiones temporales.
+    """
+    df = df.copy()
+    conteo = df[col_distrito].value_counts()
+    distritos_validos = conteo[conteo >= min_anuncios].index
+    return df[df[col_distrito].isin(distritos_validos)].reset_index(drop=True)
+
+
 class FiltroIQRDistrito(BaseEstimator, TransformerMixin):
     """Filtra valores atípicos (outliers) basándose en el precio por metro cuadrado,
     calculando los límites del Rango Intercuartílico (IQR) por cada distrito.
     
-    Diseñado para evitar el Data Leakage: aprende los límites en fit() y los 
-    aplica en transform(). Se utiliza un factor IQR ajustable (por defecto 3.0 
-    para preservar propiedades de lujo legítimas).
+    Diseñado para evitar el Data Leakage: aprende los límites y distritos con soporte
+    mínimo en fit() y los aplica en transform(). Se utiliza un factor IQR ajustable
+    (por defecto 3.0 para preservar propiedades de lujo legítimas).
     """
     
-    def __init__(self, factor_iqr=3.0, col_precio="precio_usd", col_area="superficie_m2", col_distrito="distrito"):
+    def __init__(
+        self, 
+        factor_iqr: float = 3.0, 
+        col_precio: str = "precio_usd", 
+        col_area: str = "superficie_m2", 
+        col_distrito: str = "distrito",
+        min_muestras_distrito: int = 10
+    ):
         self.factor_iqr = factor_iqr
         self.col_precio = col_precio
         self.col_area = col_area
         self.col_distrito = col_distrito
+        self.min_muestras_distrito = min_muestras_distrito
         self.limites_ = {}
+        self.distritos_validos_ = set()
         self.limite_global_ = (0, np.inf)
 
     def fit(self, X, y=None):
@@ -96,8 +122,18 @@ class FiltroIQRDistrito(BaseEstimator, TransformerMixin):
         df_temp = X[[self.col_precio, self.col_area, self.col_distrito]].copy()
         df_temp["precio_m2"] = df_temp[self.col_precio] / df_temp[self.col_area]
 
+        # Validar soporte mínimo por distrito en entrenamiento
+        conteo = df_temp[self.col_distrito].value_counts()
+        if self.min_muestras_distrito > 0:
+            self.distritos_validos_ = set(conteo[conteo >= self.min_muestras_distrito].index)
+            # Solo estimar límites distritales para aquellos con suficiente masa
+            df_temp_stats = df_temp[df_temp[self.col_distrito].isin(self.distritos_validos_)]
+        else:
+            self.distritos_validos_ = set(conteo.index)
+            df_temp_stats = df_temp
+
         # Calcular Q1, Q3 e IQR por distrito usando métodos vectorizados
-        stats = df_temp.groupby(self.col_distrito)["precio_m2"].agg(
+        stats = df_temp_stats.groupby(self.col_distrito)["precio_m2"].agg(
             q1=lambda x: x.quantile(0.25),
             q3=lambda x: x.quantile(0.75)
         )
@@ -110,7 +146,7 @@ class FiltroIQRDistrito(BaseEstimator, TransformerMixin):
         # Guardar en memoria como diccionario {distrito: (lim_inf, lim_sup)}
         self.limites_ = stats[["lim_inf", "lim_sup"]].apply(tuple, axis=1).to_dict()
 
-        # Calcular un límite global de respaldo (por si un distrito solo aparece en Test)
+        # Calcular un límite global de respaldo
         q1_g = df_temp["precio_m2"].quantile(0.25)
         q3_g = df_temp["precio_m2"].quantile(0.75)
         iqr_g = q3_g - q1_g
@@ -135,5 +171,10 @@ class FiltroIQRDistrito(BaseEstimator, TransformerMixin):
 
         # Crear máscara binaria de retención y aplicar filtro
         mask_validos = (precio_m2 >= lim_inf) & (precio_m2 <= lim_sup)
+
+        # Filtro de soporte distrital (excluye distritos no vistos o con soporte insuficiente en Train)
+        if self.min_muestras_distrito > 0 and len(self.distritos_validos_) > 0:
+            mask_distrito = X_out[self.col_distrito].isin(self.distritos_validos_)
+            mask_validos = mask_validos & mask_distrito
 
         return X_out[mask_validos].reset_index(drop=True)
