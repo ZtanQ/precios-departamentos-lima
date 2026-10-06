@@ -21,9 +21,8 @@ En Lima, los departamentos se anuncian en dólares y su precio se fija mirando o
 | Período | 1998-T1 a 2026-T1, trimestral |
 | Tipo de precio | Precio de oferta (anuncio), no precio final de venta |
 
-El BCRP recopila estos precios desde 1998, primero de anuncios en periódicos y hoy del portal Urbania. Metodología: [BCRP, Documento de Trabajo 006-2018](https://www.bcrp.gob.pe/docs/Publicaciones/Documentos-de-Trabajo/2018/documento-de-trabajo-006-2018.pdf) y [BCRP, Nota de Estudios 65-2025](https://www.bcrp.gob.pe/docs/Publicaciones/Notas-Estudios/2025/nota-de-estudios-65-2025.pdf).
-
-**Pendiente:** agregar el enlace exacto de descarga del Excel y las condiciones de uso de BCRPData.
+- **Enlace de descarga oficial:** [BCRP - Indicador de Precios de Venta de Departamentos](https://www.bcrp.gob.pe/estadisticas/indicador-de-precios-de-venta-de-departamentos.html)
+- **Condiciones de uso y procedencia:** Portal de series estadísticas abiertas del Banco Central de Reserva del Perú (BCRPData). Los datos son de libre acceso con fines académicos, de estudio e investigación económica, citando la atribución institucional correspondiente. Metodología oficial disponible en [BCRP, Documento de Trabajo 006-2018](https://www.bcrp.gob.pe/docs/Publicaciones/Documentos-de-Trabajo/2018/documento-de-trabajo-006-2018.pdf) y [BCRP, Nota de Estudios 65-2025](https://www.bcrp.gob.pe/docs/Publicaciones/Notas-Estudios/2025/nota-de-estudios-65-2025.pdf).
 
 ### Sobre los archivos de datos
 
@@ -39,18 +38,22 @@ precios-departamentos-lima/
 │   └── processed/    # datos limpios generados por los notebooks (fuera de Git)
 ├── notebooks/
 │   ├── 01_problema_y_datos.ipynb       # problema, dataset, reglas de limpieza, baseline de mercado
-│   ├── 02_eda.ipynb                    # análisis exploratorio
-│   └── 03_preparacion_y_modelos.ipynb  # limpieza, pipeline, modelos y evaluación
+│   ├── 02_eda.ipynb                    # análisis exploratorio detallado
+│   ├── 03_preparacion_y_modelos.ipynb  # limpieza, pipeline, modelos y evaluación
+│   └── valoracion_inmobiliaria.ipynb   # NOTEBOOK CONSOLIDADO FINAL con todo el flujo integrado
 ├── src/
 │   ├── config.py     # rutas y decisiones compartidas (año de corte, semilla, columnas)
 │   ├── datos.py      # cargar_datos(): carga única para todo el equipo
-│   ├── limpieza.py   # reglas de limpieza propuestas (notebook 01)
+│   ├── limpieza.py   # reglas de limpieza y transformadores (FiltroIQRDistrito, normalización)
 │   ├── baseline.py   # regla de mercado (distrito × m²) como estimador de scikit-learn
-│   └── metricas.py   # métricas comunes para comparar todos los modelos
+│   ├── metricas.py   # métricas comunes para comparar todos los modelos (MAE, RMSE, MedAPE, MAPE)
+│   └── modelos.py    # definición y pipelines de modelos (Ridge, ElasticNet, RF, CatBoost)
 ├── scripts/
 │   └── convertir_excel_a_parquet.py
 ├── models/           # modelos entrenados (fuera de Git)
-├── reports/figures/  # gráficos exportados para la presentación
+├── reports/
+│   ├── figures/      # gráficos exportados para el informe y la presentación
+│   └── informe_tp1.tex # informe formal del TP1 en LaTeX
 ├── requirements.txt
 └── README.md
 ```
@@ -78,7 +81,7 @@ pip install -r requirements.txt
 jupyter notebook
 ```
 
-Abrir los notebooks de la carpeta `notebooks/` en orden (01, 02, 03). Cada uno carga los datos con:
+Abrir los notebooks de la carpeta `notebooks/` en orden (01, 02, 03) o directamente el notebook unificado `valoracion_inmobiliaria.ipynb`. Cada uno carga los datos con:
 
 ```python
 from src.datos import cargar_datos
@@ -87,12 +90,12 @@ df = cargar_datos()
 
 ## Equipo
 
-| Integrante | Bloque |
+| Integrante | Rol / Bloque |
 | --- | --- |
-| Gabriel Reyna | Problema, dataset, reglas de limpieza, baseline de mercado y matriz de herramientas |
-| Yair | Análisis exploratorio (EDA) e interpretaciones |
-| José | Limpieza, separación de datos, pipeline, modelos y evaluación |
-| Marcos | Integración del repositorio, notebook final, plan hacia el TF1 y presentación |
+| Gabriel Alonzo Reyna Alvarado | Problema, dataset, reglas de limpieza, baseline de mercado y matriz de herramientas |
+| Guido Yair Abel Jeri Saldaña | Análisis exploratorio de datos (EDA) e interpretaciones |
+| José Guillermo Melgar Puertas | Limpieza, separación de datos out-of-time, pipeline, modelos y evaluación preliminar |
+| Piero Marcos Contreras Albornoz | Integración del repositorio, notebook final, plan hacia el TF1 y presentación |
 
 ## Cómo trabajamos con Git
 
@@ -111,11 +114,12 @@ df = cargar_datos()
 
 - [x] Estructura del repositorio y carga de datos
 - [x] Definición del problema, ficha técnica, reglas de limpieza propuestas y baseline de mercado (notebook 01)
-- [ ] EDA con interpretaciones (notebook 02)
-- [ ] Reglas de limpieza acordadas por el equipo
-- [ ] Pipeline, baselines y modelos (notebook 03)
-- [ ] Notebook final consolidado
-- [ ] Plan hacia el TF1
+- [x] EDA exhaustivo con interpretaciones diferenciadas (notebook 02 y consolidado)
+- [x] Reglas de limpieza acordadas e implementadas en `src/limpieza.py` (deduplicación, normalización distrital, filtro IQR)
+- [x] Pipeline reproducible con `ColumnTransformer`, baselines y modelos en `src/modelos.py` (notebook 03)
+- [x] Notebook final consolidado (`notebooks/valoracion_inmobiliaria.ipynb`)
+- [x] Informe escrito formal en LaTeX (`reports/informe_tp1.tex`)
+- [x] Plan de trabajo hacia el TF1 documentado
 - [ ] Presentación (PDF o PPTX)
 
 ## Decisiones de herramientas
@@ -124,17 +128,13 @@ Cada herramienta se eligió por un rasgo concreto de nuestros datos. Se actualiz
 
 | Necesidad | Etapa | Herramienta elegida | Alternativa considerada | Justificación |
 | --- | --- | --- | --- | --- |
-| Carga y manipulación | TP1 | pandas | Excel / Power Query | Son 120 mil filas con reglas que hay que repetir igual cada vez. En Excel las correcciones son manuales y no quedan registradas |
-| EDA | TP1 | Matplotlib + Seaborn | ydata-profiling (reporte automático) | El EDA gira alrededor del tiempo y del distrito. Un reporte automático no detecta que piso = 0 depende del año; solo muestra que hay muchos ceros |
-| Preparación | TP1 | scikit-learn: Pipeline + ColumnTransformer + SimpleImputer + OneHotEncoder | Limpieza manual en pandas antes de separar | El pipeline ajusta imputación y codificación solo con el entrenamiento, lo que evita fuga, y se reutiliza tal cual en la app |
-| Transformación del objetivo | TP1 | TransformedTargetRegressor (logaritmo del precio) | Precio sin transformar | El precio va de US$190 a US$3.4 M. En escala logarítmica el modelo aprende errores relativos, que es como se negocia un precio |
-| Baseline | TP1 | DummyRegressor + regla de mercado (`src/baseline.py`) | Solo DummyRegressor | El Dummy es fácil de superar (32% de error mediano). La regla de mercado (15%) es la referencia real de un tasador |
-| Modelamiento | TP1 | Ridge y un modelo de árboles (Random Forest o HistGradientBoosting) | Redes neuronales / AutoML | Ridge es fácil de explicar. Los árboles captan combinaciones, como que una cochera valga distinto según el distrito. Para datos tabulares de este tamaño, una red neuronal no se justifica |
-| Experimentación | TF1 | Optuna + validación temporal (TimeSeriesSplit) + MLflow | GridSearchCV con validación aleatoria | Optuna explora más combinaciones en menos tiempo. La validación debe respetar el orden temporal |
-| Interpretabilidad | TF1 | SHAP | Importancia de variables del Random Forest | SHAP explica cada predicción ("sube US$12 mil por estar en San Isidro"), que es lo que un usuario quiere saber |
-| Despliegue | TF1 | Streamlit | FastAPI | El usuario final es una persona que ingresa datos de un departamento. FastAPI tendría sentido si otra aplicación consumiera el modelo |
-| Reproducibilidad | TP1 y TF1 | Git + requirements.txt | Carpeta compartida en Drive | Cuatro personas trabajan en paralelo; Git registra quién cambió qué y permite volver atrás |
-
-## Uso de herramientas de IA generativa
-
-Según la sección 10 de la guía del curso. **Pendiente:** completar al cierre del TP1 indicando para qué se usó (por ejemplo, revisión del dataset, estructura del repositorio o redacción de documentación).
+| Carga y manipulación | TP1 | pandas | Excel / Power Query | Son 120 mil filas con reglas reproducibles. En Excel las correcciones son manuales y no quedan versionadas |
+| EDA | TP1 | Matplotlib + Seaborn | ydata-profiling (reporte automático) | El EDA gira alrededor del tiempo y del distrito. Un reporte automático no detecta que piso = 0 depende del año |
+| Preparación | TP1 | scikit-learn: Pipeline + ColumnTransformer + SimpleImputer + RobustScaler + OneHotEncoder | Limpieza manual en pandas antes de separar | El pipeline ajusta imputación, escalado y codificación solo con el entrenamiento, evitando fuga de datos |
+| Transformación del objetivo | TP1 | TransformedTargetRegressor (logaritmo natural del precio) | Precio sin transformar | El precio tiene fuerte asimetría positiva. En escala logarítmica el modelo optimiza errores porcentuales/relativos |
+| Baselines | TP1 | DummyRegressor (media y mediana) + regla de mercado (`src/baseline.py`) | Solo DummyRegressor | La regla de mercado (14.9% error mediano) es la referencia empírica real de los tasadores a superar |
+| Modelamiento | TP1 | Ridge, ElasticNet, Random Forest y CatBoost Regressor (`src/modelos.py`) | Redes neuronales / AutoML | CatBoost lideró con 11.3% de error mediano, capturando no linealidades espaciales complejas sin sobreajuste |
+| Experimentación | TF1 | Optuna + validación temporal (TimeSeriesSplit) + MLflow | GridSearchCV con validación aleatoria | Optuna explora eficientemente hiperparámetros respetando el orden cronológico estricto |
+| Interpretabilidad | TF1 | SHAP (TreeSHAP) | Importancia nativa de variables MDI | SHAP explica cada predicción localmente en dólares reales, aportando transparencia al usuario |
+| Despliegue | TF1 | Streamlit | FastAPI | Permite que un usuario final ingrese los datos del departamento e interactúe con la tasación e intervalos en tiempo real |
+| Reproducibilidad | TP1 y TF1 | Git + requirements.txt + LaTeX | Carpeta compartida en Drive | Permite versionado colaborativo y redacción académica profesional reproducible |
