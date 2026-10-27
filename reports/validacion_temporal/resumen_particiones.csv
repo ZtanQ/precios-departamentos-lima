@@ -1,0 +1,4 @@
+﻿particion,anuncios,distritos,anio_min,anio_max,incluidos_iqr_seleccion,incluidos_iqr_final,banos_faltantes,antiguedad_faltante
+entrenamiento,10061,22,2022,2023,10048,10051,1,0
+validacion,5132,22,2023,2023,5101,5105,0,1
+prueba,25154,22,2024,2026,,25042,0,0

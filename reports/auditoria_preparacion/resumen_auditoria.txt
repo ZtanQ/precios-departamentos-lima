@@ -1,0 +1,99 @@
+Fuente: precios_venta_bcrp_2026_1.parquet
+SHA256: 8c0dc88f22fbfac03a33cd03c07811b6929ec436b650b4a5b72c933062c00ff8
+pandas: 2.2.3 | numpy: 2.1.3
+
+==============================================================================
+ALCANCE
+==============================================================================
+2022-T1 a 2026-T1. Auditoría; no aplica decisiones nuevas.
+fila_origen: posición base cero en la carga original, no ID de inmueble.
+Las vistas de preparación son copias en memoria; la fuente no se modifica.
+Coincidir en características no demuestra identidad del inmueble.
+Las estadísticas de precio son descriptivas del período completo, NO reglas para entrenar o evaluar modelos.
+
+==============================================================================
+CONTEOS
+==============================================================================
+                                        etapa  filas
+                           original histórico 119980
+                           2022–2026-T1 bruto  41523
+            exactos adicionales en el período   1155
+                          período sin exactos  40368
+ vista TP1 previa a IQR (soporte global >=10)  40364
+       coincidencias adicionales en vista TP1      4
+        filas con alertas lógicas o faltantes      2
+precios para revisión (incluye top/bottom 10)     21
+
+==============================================================================
+CLAVE DE COINCIDENCIAS RESIDUALES
+==============================================================================
+anio, trimestre, precio_usd, distrito, superficie_m2, habitaciones, banos, garajes, antiguedad_anios
+
+==============================================================================
+DIFERENCIAS ENTRE COINCIDENCIAS RESIDUALES
+==============================================================================
+ grupo_auditoria  miembros  filas_adicionales   filas_origen columnas_originales_diferentes                               estado
+               1         2                  1 104708, 104776                           piso pendiente de revisión; no se elimina
+               2         2                  1 105020, 105044                           piso pendiente de revisión; no se elimina
+               3         2                  1 105244, 105270                           piso pendiente de revisión; no se elimina
+               4         2                  1 106243, 106303                           piso pendiente de revisión; no se elimina
+
+==============================================================================
+FILAS COMPLETAS DE COINCIDENCIAS RESIDUALES
+==============================================================================
+ grupo_auditoria  fila_origen periodo  anio  trimestre  precio_usd  tipo_cambio        ipc  precio_soles  precio_soles_2009    distrito  superficie_m2  habitaciones  banos  garajes  piso  vista_exterior  antiguedad_anios periodo_original  anio_original  trimestre_original  precio_usd_original  tipo_cambio_original  ipc_original  precio_soles_original  precio_soles_2009_original distrito_original  superficie_m2_original  habitaciones_original  banos_original  garajes_original  piso_original  vista_exterior_original  antiguedad_anios_original
+               1       104708  2024-4  2024          4    118000.0     3.755779 164.262689 443181.868740      269800.689622 Jesús María           83.0           3.0    2.0      0.0   0.0             1.0              13.0           2024-4           2024                   4             118000.0              3.755779    164.262689          443181.868740               269800.689622       Jesús María                    83.0                    3.0             2.0               0.0            0.0                      1.0                       13.0
+               1       104776  2024-4  2024          4    118000.0     3.755779 164.262689 443181.868740      269800.689622 Jesús María           83.0           3.0    2.0      0.0  11.0             1.0              13.0           2024-4           2024                   4             118000.0              3.755779    164.262689          443181.868740               269800.689622       Jesús María                    83.0                    3.0             2.0               0.0           11.0                      1.0                       13.0
+               2       105020  2024-4  2024          4     85000.0     3.755779 164.262689 319241.176635      194347.954389       Lince           80.0           3.0    1.0      0.0   0.0             1.0              22.0           2024-4           2024                   4              85000.0              3.755779    164.262689          319241.176635               194347.954389             Lince                    80.0                    3.0             1.0               0.0            0.0                      1.0                       22.0
+               2       105044  2024-4  2024          4     85000.0     3.755779 164.262689 319241.176635      194347.954389       Lince           80.0           3.0    1.0      0.0   6.0             1.0              22.0           2024-4           2024                   4              85000.0              3.755779    164.262689          319241.176635               194347.954389             Lince                    80.0                    3.0             1.0               0.0            6.0                      1.0                       22.0
+               3       105244  2024-4  2024          4    168000.0     3.755779 164.262689 630970.796172      384123.015734   Magdalena           80.0           3.0    2.0      1.0   7.0             1.0               2.0           2024-4           2024                   4             168000.0              3.755779    164.262689          630970.796172               384123.015734         Magdalena                    80.0                    3.0             2.0               1.0            7.0                      1.0                        2.0
+               3       105270  2024-4  2024          4    168000.0     3.755779 164.262689 630970.796172      384123.015734   Magdalena           80.0           3.0    2.0      1.0   0.0             1.0               2.0           2024-4           2024                   4             168000.0              3.755779    164.262689          630970.796172               384123.015734         Magdalena                    80.0                    3.0             2.0               1.0            0.0                      1.0                        2.0
+               4       106243  2024-4  2024          4    178107.0     3.755779 164.262689 668930.449963      407232.130734  San Isidro           61.0           2.0    2.0      1.0   0.0             1.0               0.0           2024-4           2024                   4             178107.0              3.755779    164.262689          668930.449963               407232.130734        San Isidro                    61.0                    2.0             2.0               1.0            0.0                      1.0                        0.0
+               4       106303  2024-4  2024          4    178107.0     3.755779 164.262689 668930.449963      407232.130734  San Isidro           61.0           2.0    2.0      1.0  12.0             1.0               0.0           2024-4           2024                   4             178107.0              3.755779    164.262689          668930.449963               407232.130734        San Isidro                    61.0                    2.0             2.0               1.0           12.0                      1.0                        0.0
+
+==============================================================================
+INCONSISTENCIAS LÓGICAS Y FALTANTES ORIGINALES
+==============================================================================
+                      motivo_revision  fila_origen periodo  anio  trimestre  precio_usd  tipo_cambio        ipc  precio_soles  precio_soles_2009 distrito  superficie_m2  habitaciones  banos  garajes  piso  vista_exterior  antiguedad_anios
+             banos: faltante original        85440  2023-1  2023          1     68000.0     3.818142 157.519370 259633.647647      164826.488937    Breña           81.0           3.0    NaN      0.0   0.0             1.0              41.0
+antigüedad: negativa o superior a 150        90819  2023-3  2023          3    149900.0     3.674333 161.170867 550782.566667      341738.291825    Surco           83.0           3.0    1.0      1.0   0.0             1.0            1996.0
+
+==============================================================================
+PRECIOS PARA REVISIÓN
+==============================================================================
+ fila_origen periodo  anio  trimestre   precio_usd  tipo_cambio        ipc  precio_soles  precio_soles_2009     distrito  superficie_m2  habitaciones  banos  garajes  piso  vista_exterior  antiguedad_anios distrito_referencia    precio_m2  n_referencia_distrito_anio  mediana_m2_distrito_anio  ratio_mediana_m2  alerta_ratio  entre_10_menores_m2  entre_10_mayores_m2
+       88630  2023-2  2023          2 1.900000e+02     3.699146 160.126657  7.028378e+02       4.389262e+02   San Isidro          103.0           2.0    2.0      1.0   0.0             1.0              50.0          San Isidro     1.844660                         432               2204.905287          0.000837          True                 True                False
+       96182  2024-1  2024          1 2.769503e+04     3.759223 162.435219  1.041118e+05       6.409436e+04        Surco          128.0           3.0    3.0      2.0   0.0             1.0               6.0               Surco   216.367444                        2171               1700.000000          0.127275          True                 True                False
+       89031  2023-3  2023          3 2.800000e+04     3.674333 161.170867  1.028813e+05       6.383370e+04   Carabayllo          120.0           2.0    1.0      0.0   0.0             1.0               0.0          Carabayllo   233.333333                          70                644.737956          0.361904         False                 True                False
+       97233  2024-2  2024          2 2.500000e+04     3.742923 163.709082  9.357307e+04       5.715814e+04        Comas           83.0           2.0    1.0      0.0   0.0             1.0               0.0               Comas   301.204819                         166                779.314884          0.386500         False                 True                False
+       98617  2024-2  2024          2 3.670737e+04     3.742923 163.709082  1.373929e+05       8.392500e+04   Miraflores          116.0           2.0    2.0      0.0   0.0             1.0              40.0          Miraflores   316.442865                        1961               2192.307692          0.144342          True                 True                False
+       88774  2023-2  2023          2 2.432500e+04     3.699146 160.126657  8.998173e+04       5.619410e+04    Surquillo           75.0           2.0    1.0      0.0   0.0             1.0              40.0           Surquillo   324.333333                         545               1704.545455          0.190276          True                 True                False
+       87980  2023-2  2023          2 2.589010e+04     3.699146 160.126657  9.577128e+04       5.980970e+04   San Miguel           73.0           3.0    2.0      0.0   0.0             1.0               5.0          San Miguel   354.658948                         662               1438.701124          0.246513          True                 True                False
+      102498  2024-3  2024          3 3.078381e+04     3.757980 164.359952  1.156849e+05       7.038512e+04 Pueblo Libre           85.0           3.0    2.0      0.0   0.0             1.0               7.0        Pueblo Libre   362.162494                         542               1624.188312          0.222981          True                 True                False
+       81729  2022-3  2022          3 2.900000e+04     3.891228 152.769854  1.128456e+05       7.386641e+04   Carabayllo           80.0           2.0    1.0      0.0   0.0             1.0               1.0          Carabayllo   362.500000                         105                619.047619          0.585577         False                 True                False
+      112895  2025-3  2025          3 3.660000e+04     3.534073 166.635155  1.293471e+05       7.762291e+04   Carabayllo          100.0           3.0    1.0      1.0   0.0             1.0               3.0          Carabayllo   366.000000                          30                677.370031          0.540325         False                 True                False
+      113059  2025-3  2025          3 3.150000e+05     3.534073 166.635155  1.113233e+06       6.680661e+05   Chorrillos           53.0           2.0    2.0      0.0   0.0             1.0               0.0          Chorrillos  5943.396226                         307               1192.307692          4.984784          True                False                False
+      113427  2025-3  2025          3 2.711900e+05     3.534073 166.635155  9.584052e+05       5.751519e+05        Lince           45.0           1.0    1.0      0.0   0.0             1.0               2.0               Lince  6026.444444                         366               1837.701584          3.279338         False                False                 True
+      116150  2025-4  2025          4 2.711900e+05     3.384559 166.578435  9.178586e+05       5.510069e+05        Lince           45.0           1.0    1.0      0.0   0.0             1.0               2.0               Lince  6026.444444                         366               1837.701584          3.279338         False                False                 True
+      117018  2025-4  2025          4 4.920000e+05     3.384559 166.578435  1.665203e+06       9.996511e+05   San Isidro           80.0           3.0    3.0      1.0   0.0             1.0              10.0          San Isidro  6150.000000                         532               2272.727273          2.706000         False                False                 True
+      115896  2025-4  2025          4 4.600000e+05     3.384559 166.578435  1.556897e+06       9.346331e+05        Comas           71.0           2.0    1.0      0.0   0.0             1.0               7.0               Comas  6478.873239                         116                790.341463          8.197562          True                False                 True
+      118518  2026-1  2026          1 4.799000e+05     3.386833 169.177118  1.625341e+06       9.607333e+05    Magdalena           68.0           3.0    2.0      0.0   0.0             1.0               0.0           Magdalena  7057.352941                          89               1986.301370          3.553012         False                False                 True
+      113193  2025-3  2025          3 5.700000e+05     3.534073 166.635155  2.014421e+06       1.208881e+06  Jesús María           76.0           3.0    2.0      0.0   0.0             1.0               0.0         Jesús María  7500.000000                         465               1885.245902          3.978261         False                False                 True
+       88185  2023-2  2023          2 7.000000e+05     3.699146 160.126657  2.589402e+06       1.617096e+06     Barranco           92.0           3.0    2.0      1.0   0.0             1.0               3.0            Barranco  7608.695652                         337               2301.537759          3.305918         False                False                 True
+      119886  2026-1  2026          1 9.870000e+05     3.386833 169.177118  3.342804e+06       1.975920e+06    Surquillo          126.0           4.0    4.0      2.0   0.0             1.0               0.0           Surquillo  7833.333333                         129               1855.555556          4.221557          True                False                 True
+      108814  2025-1  2025          1 1.450000e+06     3.699348 164.926834  5.364055e+06       3.252385e+06   Miraflores          131.0           3.0    2.0      2.0   0.0             1.0               5.0          Miraflores 11068.702290                        1840               2252.747253          4.913424          True                False                 True
+      103689  2024-3  2024          3 1.460000e+06     3.757980 164.359952  5.486650e+06       3.338192e+06        Surco          105.0           2.0    2.0      1.0   0.0             1.0              19.0               Surco 13904.761905                        2171               1700.000000          8.179272          True                False                 True
+
+==============================================================================
+CRITERIOS DE LECTURA Y PENDIENTES
+==============================================================================
+Ratio <0.25 o >4 de la mediana de distrito/año: señal exploratoria, no error confirmado.
+Los 10 menores/mayores US$/m² se incluyen aunque no superen esos límites.
+Referencias con pocos casos son débiles; consultar n_referencia_distrito_anio.
+No se ajusta ni aplica el filtro IQR: esto no reproduce su muestra final.
+Antigüedad 1996 podría ser un año de construcción; no se convierte sin evidencia.
+No se reemplaza US$190 por US$190000 ni se corrigen monedas por inferencia.
+La política actual convierte antigüedades >150 en faltantes solo en la vista TP1.
+Los cuatro residuales se buscan después de las transformaciones actuales; pueden diferir en columnas descartadas.
+Las repeticiones exactas son repeticiones de filas, no identificación confirmada de inmuebles.
+Próximo paso: revisar estas tablas y acordar conservar, corregir con evidencia o excluir con motivo documentado.

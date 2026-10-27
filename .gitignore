@@ -24,3 +24,6 @@ models/*
 Thumbs.db
 .vscode/
 .idea/
+
+#Entorno virtual en caso de uso
+.venv/

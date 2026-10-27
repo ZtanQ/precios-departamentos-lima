@@ -1,0 +1,7 @@
+{
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "fuente_sha256": "8c0dc88f22fbfac03a33cd03c07811b6929ec436b650b4a5b72c933062c00ff8",
+  "decisiones_sha256": "202c264ea8e3ca9404b496e24c774a2d5e1074839c0939e9cc56272d5af5f8a8",
+  "filas": 40347,
+  "modelos_entrenados": false
+}

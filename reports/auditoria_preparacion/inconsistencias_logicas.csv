@@ -1,0 +1,3 @@
+﻿motivo_revision,fila_origen,periodo,anio,trimestre,precio_usd,tipo_cambio,ipc,precio_soles,precio_soles_2009,distrito,superficie_m2,habitaciones,banos,garajes,piso,vista_exterior,antiguedad_anios
+banos: faltante original,85440,2023-1,2023,1,68000.0,3.8181418771566595,157.51937041254857,259633.64764665285,164826.48893698823,Breña,81.0,3.0,,0.0,0.0,1.0,41.0
+antigüedad: negativa o superior a 150,90819,2023-3,2023,3,149900.0,3.6743333333333332,161.17086666666668,550782.5666666667,341738.2918252802,Surco,83.0,3.0,1.0,1.0,0.0,1.0,1996.0

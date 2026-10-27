@@ -1,0 +1,16 @@
+Validación temporal: ejecución local
+Entrenamiento: 2022-T1–2023-T2. Validación: 2023-T3/T4. Prueba: 2024-T1–2026-T1.
+No se entrenaron modelos. No se imputaron objetivos ni características.
+
+               anuncios  distritos  anio_min  anio_max incluidos_iqr_seleccion  incluidos_iqr_final  banos_faltantes  antiguedad_faltante
+particion                                                                                                                                
+entrenamiento     10061         22      2022      2023                   10048                10051                1                    0
+validacion         5132         22      2023      2023                    5101                 5105                0                    1
+prueba            25154         22      2024      2026                    <NA>                25042                0                    0
+
+IQR selección ajustado solo en entrenamiento; máscara de prueba ausente intencionalmente.
+IQR final ajustado en 2022–2023 para reentrenamiento posterior a la selección.
+Las máscaras usan el precio observado: delimitan una muestra condicionada, no un filtro de inferencia.
+Los IDs y máscaras se excluyen con src.validacion.separar_xy().
+La prueba y exclusiones manuales ya se exploraron: no es una prueba inédita.
+El protocolo conserva normalización y soporte global del TP1; no demuestra ausencia absoluta de fuga.

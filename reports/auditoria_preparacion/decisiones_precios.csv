@@ -1,0 +1,22 @@
+﻿fila_origen,decision,grupo,motivo,periodo,distrito,superficie_m2,precio_usd,huella
+88630,excluir,bajo,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2023-2,San Isidro,103.0,190.0,204909287de36fabde7b6837a021c4d80b7a516fdc228ca5c1c0a06b0b5de618
+96182,excluir,bajo,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2024-1,Surco,128.0,27695.03277824753,26f382cff339bdc8a3b3ede91c079a23deacfbf706da34fffb07181e4f5c7448
+98617,excluir,bajo,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2024-2,Miraflores,116.0,36707.37233034133,b62ba9f2d9b126ec0a34d2f7db1dac4e44ecf19fc1b87630eadb59c8b22f5d0b
+88774,excluir,bajo,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2023-2,Surquillo,75.0,24325.0,5b4bdac06427c8242307e8b36bbc136b6efb14f638fbd062a5e07c148dcd308e
+87980,excluir,bajo,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2023-2,San Miguel,73.0,25890.1032276986,6a0c05f0c6a0c9bf450932b41d1881d1a75c315f1358397a8018ce533a1bcb74
+102498,excluir,bajo,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2024-3,Pueblo Libre,85.0,30783.81196095157,252c3aa83395a98a1486ae02102dd9aa809fcea3c2adc25142896e7a14be6c18
+103689,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2024-3,Surco,105.0,1460000.0,ac2afa424914a8f932a11c9bc7ffd831cfcb0ee5b9f90ff49ecf64b731d3b9f4
+108814,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2025-1,Miraflores,131.0,1450000.0,114ea9b91a65fd909d258da77d41077dd020581b302a48131838fc833ad4fd35
+119886,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2026-1,Surquillo,126.0,987000.0,d41638e6aaedc71f60e81c04f6e9fd3e347a4a1f3b54b375ae508afb2a1f7680
+115896,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2025-4,Comas,71.0,460000.0,1c3dd1eedbff1111c6f045dfe023eeeefd3855a040c0d49ce3bde06bfe25c614
+113059,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2025-3,Chorrillos,53.0,315000.0,41ced4a200cade39c7c40b04a86f8444ebe48b1d39c2a1c01ae34d3637ab1a6b
+113193,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2025-3,Jesús María,76.0,570000.0,9e1bff9e5c3989cf87d290fed843a115edccb3333178617498512fb834736eb3
+118518,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2026-1,Magdalena,68.0,479900.0,e68ea8ffc769052452de244c586a79d187e1cd70d5d65037b31f6bf88eae9622
+88185,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2023-2,Barranco,92.0,700000.0,ed00116dd0a0d44386ba91827003aec1cc7cbef4a4cb75fa9693a231f732ebe4
+113427,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2025-3,Lince,45.0,271190.0,1bc7c0f7ac97d1a18fe992010bae95120a0c79ff5281f68433f79f33a4048e3b
+116150,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2025-4,Lince,45.0,271190.0,a161d5e09c8ea378593bdd88fe2556c26a374cee34c3f028a410b5663fb4df87
+117018,excluir,alto,"Precio sospechoso no corroborado; exclusión acordada, no error confirmado",2025-4,San Isidro,80.0,492000.0,c2f0fe6da85ae9a4d6589694da65f0f941ae0e9a48f5fe6103588d7ce85300b6
+89031,conservar,bajo,Precio bajo conservado por acuerdo del equipo,2023-3,Carabayllo,120.0,28000.0,732e330b4ef7b226fab4d429f3f6ada0201fbca2e22ed04e13164be921756ded
+97233,conservar,bajo,Precio bajo conservado por acuerdo del equipo,2024-2,Comas,83.0,25000.0,811607921923dc0fe94dca2d7b7e7e0db0732fd05198272d00c039366481382f
+81729,conservar,bajo,Precio bajo conservado por acuerdo del equipo,2022-3,Carabayllo,80.0,29000.0,caa4dd16b6b0625285b13d9ec0f94f20f220e234652e9c2f7d0a28bd7ea7cb9c
+112895,conservar,bajo,Precio bajo conservado por acuerdo del equipo,2025-3,Carabayllo,100.0,36600.0,b4dbdbecde6b387d95d6e9a8ba4e81e854c88e70bc6557ff8a078642cd62ef72

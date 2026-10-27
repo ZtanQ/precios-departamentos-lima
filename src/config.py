@@ -22,6 +22,12 @@ SEMILLA = 42
 ANIO_FIN_TRAIN = 2023      # entrenamiento: anuncios hasta 2023
 ANIO_INICIO_TEST = 2024    # evaluación: anuncios de 2024 en adelante
 
+# TF1: ordinal trimestral = año * 4 + trimestre - 1.
+TF1_INICIO = 2022 * 4
+TF1_FIN_AJUSTE = 2023 * 4 + 1  # 2023-T2, inclusive
+TF1_FIN_VALIDACION = 2023 * 4 + 3  # 2023-T4, inclusive
+TF1_FIN = 2026 * 4  # 2026-T1, inclusive
+
 # Variable objetivo
 OBJETIVO = "precio_usd"
 

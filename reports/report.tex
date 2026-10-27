@@ -88,7 +88,7 @@
 % RESUMEN EJECUTIVO (ABSTRACT)
 % ==============================================================================
 \begin{abstract}
-El mercado inmobiliario de Lima Metropolitana se caracteriza por una alta dispersión de precios, fuerte asimetría de información y el uso extendido de heurísticas simplistas basadas únicamente en el precio mediano por metro cuadrado distrital. El presente proyecto aborda la estimación del precio de oferta (\textit{asking price}) en dólares estadounidenses para departamentos residenciales en Lima mediante técnicas de Machine Learning supervisado. A partir de la base de microdatos del Banco Central de Reserva del Perú (BCRP), compuesta por 119,980 anuncios trimestrales (1998--2026), se diseñó un flujo de preparación riguroso que comprende deduplicación, corrección lógica de atributos, normalización de grafías distritales y eliminación estricta de fuentes de fuga de datos (\textit{data leakage}). Para capturar la estructura contemporánea de mercado y la incorporación de 26 distritos, se acotó el modelado al período 2022--2026 (40,368 observaciones), empleando una partición temporal fuera de muestra (\textit{out-of-time}): 2022--2023 para entrenamiento ($N = 15,158$) y 2024--2026 para evaluación ($N = 25,048$). La variable objetivo se transformó logarítmicamente para modelar errores proporcionales. Se estructuró un flujo reproducible con \texttt{ColumnTransformer} y se evaluaron dos baselines (Dummy y regla empírica distrital) junto con cuatro algoritmos: Ridge, ElasticNet, Random Forest y CatBoost Regressor. Los resultados demuestran que los métodos basados en gradiente superan ampliamente la referencia comercial: CatBoost redujo el error porcentual mediano (MedAPE) a un \textbf{11.3\%} (frente al \textbf{14.9\%} de la regla de mercado) y el RMSE de US\$ 38,350 a \textbf{US\$ 32,685}, logrando que el \textbf{45.3\%} de las estimaciones presente un error inferior al 10\%. Finalmente, se diagnostican residuales en segmentos de lujo y zonas periféricas, y se formula la hoja de ruta hacia el Trabajo Final (TF1).
+El mercado inmobiliario de Lima Metropolitana se caracteriza por una alta dispersión de precios, fuerte asimetría de información y el uso extendido de heurísticas simplistas basadas únicamente en el precio mediano por metro cuadrado distrital. El presente proyecto aborda la estimación del precio de oferta (\textit{asking price}) en dólares estadounidenses para departamentos residenciales en Lima mediante técnicas de Machine Learning supervisado. A partir de la base de microdatos del Banco Central de Reserva del Perú (BCRP), compuesta por 119,980 anuncios trimestrales (1998--2026), se diseñó un flujo de preparación riguroso que comprende deduplicación, corrección lógica de atributos, normalización de grafías distritales y eliminación estricta de fuentes de fuga de datos (\textit{data leakage}). Para capturar la estructura contemporánea de mercado con 22 distritos en la muestra preparada, se acotó el modelado al período 2022--2026 (40,347 observaciones), empleando una partición temporal fuera de muestra (\textit{out-of-time}): 2022--2023 para entrenamiento ($N = 15,156$) y 2024--2026 para evaluación ($N = 25,042$). La variable objetivo se transformó logarítmicamente para modelar errores proporcionales. Se estructuró un flujo reproducible con \texttt{ColumnTransformer} y se evaluaron dos baselines (Dummy y regla empírica distrital) junto con cuatro algoritmos: Ridge, ElasticNet, Random Forest y CatBoost Regressor. Los resultados demuestran que los métodos basados en gradiente superan ampliamente la referencia comercial: CatBoost redujo el error porcentual mediano (MedAPE) a un \textbf{11.3\%} (frente al \textbf{14.9\%} de la regla de mercado) y el RMSE de US\$ 38,322 a \textbf{US\$ 32,511}, logrando que el \textbf{45.2\%} de las estimaciones presente un error inferior al 10\%. Finalmente, se diagnostican residuales en segmentos de lujo y zonas periféricas, y se formula la hoja de ruta hacia el Trabajo Final (TF1).
 \end{abstract}
 
 \clearpage
@@ -392,6 +392,15 @@ Durante el EDA se identificaron dos fallas estructurales de instrumentación en 
 \subsection{Eliminación de Duplicados}
 Se identificaron y eliminaron \textbf{2,730 filas idénticas exactas} presentes en el archivo original del BCRP. Esta deduplicación se aplicó de manera preliminar antes de cualquier división para asegurar que anuncios repetidos por re-publicación de portales no inflaran artificialmente la masa muestral.
 
+\subsection{Actualización de limpieza para el TF1}
+Tras la auditoría del período 2022-T1 a 2026-T1, el equipo acordó excluir 17 anuncios completos por precios sospechosos no corroborados: seis de precio bajo y once de precio alto. No se imputó la variable objetivo ni se reconstruyeron precios supuestos. Se conservaron expresamente cuatro anuncios económicos (filas originales 89031, 97233, 81729 y 112895). Las posiciones originales, firmas de verificación, valores y motivos se registran en \texttt{reports/auditoria\_preparacion/decisiones\_precios.csv}.
+
+Los cuatro pares coincidentes en las variables seleccionadas difieren en el piso original y se conservan. La antigüedad 1996 se mantiene como faltante según la regla existente, sin reinterpretarla como año de construcción confirmado; el baño ausente también se imputa exclusivamente dentro del pipeline ajustado con entrenamiento.
+
+La base de trabajo actual pasa de 41,523 registros brutos a 41,506 tras las exclusiones, a 40,351 tras retirar 1,155 duplicados exactos y a \textbf{40,347 anuncios de 22 distritos} después del criterio de soporte distrital existente, antes de IQR. La fuente permanece intacta y se genera una sola base preparada local en \texttt{data/processed/base\_modelado.parquet}.
+
+\noindent\textbf{Alcance de los resultados:} Los conteos y métricas de modelamiento se actualizaron con la ejecución guardada del notebook consolidado tras esta limpieza. Todavía conservan el corte del TP1, sin selección mediante la nueva validación temporal. Las exclusiones no prueban errores ni causas subjetivas del precio y pueden reducir el error al retirar casos difíciles. La revisión incluyó el test previamente explorado del TP1; la evaluación posterior debe declarar esa limitación y su población depurada. El detalle reproducible está en \texttt{reports/auditoria\_preparacion/decisiones\_limpieza.md}.
+
 \subsection{Normalización de Categorías Inconsistentes}
 La columna \texttt{distrito} presentaba originalmente 44 valores textuales únicos debido a discrepancias de digitación, mezcla de mayúsculas y minúsculas (ej. \textit{"SURCO"}, \textit{"surco"}, \textit{"Surco"}), y espacios residuales. Mediante la función \texttt{normalizar\_distritos}, se unificaron las grafías en \textbf{26 distritos canónicos oficiales}, asignando la denominación más frecuente a cada clave normalizada.
 
@@ -424,14 +433,9 @@ El Cuadro \ref{tab:fuga_datos} fundamenta la exclusión de cinco variables origi
 \end{table}
 
 \subsection{Filtro de Valores Extremos y Outliers por Distrito}
-Se diseñó un estimador especializado (\texttt{FiltroPrecioM2Extremo} / \texttt{FiltroIQRDistrito}) para eliminar publicaciones con precios por metro cuadrado aberrantes (por ejemplo, errores tipográficos donde se anunció US\$ 190 por un departamento completo o US\$ 50,000/m$^2$ por error en la moneda).
-\begin{itemize}[leftmargin=1.5cm]
-    \item \textbf{Principio anti-fuga:} Los límites del filtro se calculan \textbf{exclusivamente sobre el conjunto de entrenamiento} utilizando la mediana de US\$/m$^2$ por distrito y año:
-    \begin{equation}
-        \text{Ratio} = \frac{\text{Precio\_USD} / \text{Superficie\_m2}}{\text{Mediana}(\text{US\$/m}^2)_{\text{distrito, anio}}}
-    \end{equation}
-    \item Se descartan aquellas observaciones cuyo ratio sea menor a 0.25 (menos de la cuarta parte del precio típico zonal) o mayor a 4.0 (más de cuatro veces el valor zonal).
-\end{itemize}
+La comparación actual utiliza \texttt{FiltroIQRDistrito}: aprende Q1 y Q3 del precio por metro cuadrado por distrito con entrenamiento y conserva valores entre $\max(0,Q1-3\,IQR)$ y $Q3+3\,IQR$. También exige soporte distrital mínimo de 10 en entrenamiento. No es el filtro alternativo de ratios 0.25--4 respecto a la mediana.
+
+Aprender los límites solo con entrenamiento evita ajustar esos límites al test, pero su aplicación utiliza el precio real de cada anuncio. Las métricas describen por tanto la muestra filtrada, no toda la oferta ni un criterio utilizable antes de conocer el precio. Las exclusiones manuales incluyeron datos de prueba ya explorados. No se presenta esta evaluación como independiente nunca vista.
 
 % ==============================================================================
 \section{Separación de los Datos}
@@ -442,10 +446,36 @@ En problemas de tasación y valoración comercial, una partición aleatoria conv
 
 Por ende, se adoptó una estrategia estricta de \textbf{partición temporal fuera de muestra (\textit{Hold-Out Temporal})}:
 \begin{itemize}[leftmargin=1.5cm]
-    \item \textbf{Horizonte acotado contemporáneo:} Se seleccionaron los datos del período \textbf{2022-T1 a 2026-T1} ($N = 40,368$ antes de filtro). Este corte garantiza dos requisitos indispensables: estabilidad macroeconómica post-pandemia y la presencia activa de los \textbf{26 distritos metropolitanos}.
-    \item \textbf{Conjunto de Entrenamiento (Train):} Años \textbf{2022 y 2023} (8 trimestres). Tras el filtro de extremos ajustado en esta muestra, contiene \textbf{15,158 observaciones} (37.7\% de la muestra filtrada).
-    \item \textbf{Conjunto de Evaluación (Test):} Años \textbf{2024 a 2026-T1} (9 trimestres). Tras aplicar los límites aprendidos en Train, contiene \textbf{25,048 observaciones} (62.3\% de la muestra filtrada).
+    \item \textbf{Horizonte acotado contemporáneo:} Se seleccionaron los datos del período \textbf{2022-T1 a 2026-T1} ($N = 40,347$ antes de filtro). El equipo seleccionó este horizonte por el contexto de pandemia y transición del mercado. No garantiza estabilidad ni cobertura metropolitana completa: la base preparada contiene 22 distritos.
+    \item \textbf{Conjunto de Entrenamiento (Train):} Años \textbf{2022 y 2023} (8 trimestres). Tras el filtro de extremos ajustado en esta muestra, contiene \textbf{15,156 observaciones} (37.7\% de la muestra filtrada).
+    \item \textbf{Conjunto de Evaluación (Test):} Años \textbf{2024 a 2026-T1} (9 trimestres). Tras aplicar los límites aprendidos en Train, contiene \textbf{25,042 observaciones} (62.3\% de la muestra filtrada).
 \end{itemize}
+
+\subsection{Validación temporal preparada para el TF1}
+Para seleccionar configuraciones se estipula entrenamiento en 2022-T1--2023-T2 y validación en 2023-T3/T4. Después de elegir la configuración, se reentrena con todo 2022--2023 y se evalúa en 2024-T1--2026-T1, que ya fue explorado durante TP1. El código divide por trimestres completos, conserva identificadores y ajusta el IQR únicamente en el entrenamiento correspondiente. No imputa ni escala globalmente. La ejecución local de \texttt{scripts/preparar\_validacion\_temporal.py} confirmó los conteos siguientes; no son métricas de nuevos modelos. El procedimiento y límites se documentan en \texttt{reports/protocolo\_validacion\_temporal.md}.
+
+\subsection{Resultados de preparación de la validación temporal}
+\begin{table}[H]
+\centering
+\small
+\caption{Particiones de selección y evaluación posterior. Los filtros IQR de selección y final se ajustan con entrenamientos diferentes.}
+\begin{tabular}{lrrr}
+\toprule
+Etapa & Antes de IQR & Después de IQR & Distritos antes de IQR \\
+\midrule
+Entrenamiento de selección & 10,061 & 10,048 & 22 \\
+Validación & 5,132 & 5,101 & 22 \\
+Reentrenamiento 2022--2023 & 15,193 & 15,156 & 22 \\
+Prueba 2024--2026-T1 & 25,154 & 25,042 & 22 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El IQR de selección excluye 13 anuncios del entrenamiento y 31 de validación; el IQR final excluye 37 de 2022--2023 y 112 de prueba. El reentrenamiento combina entrenamiento y validación originales después de seleccionar la configuración; no constituye una cuarta partición independiente.
+
+Los 22 distritos aparecen en las tres particiones previas al IQR. El menor soporte de entrenamiento es 145 y el menor de validación es 30, ambos en Carabayllo; no se detectaron distritos por debajo del mínimo de 10 en entrenamiento. La composición varía: Surco pasa del 7.4\% de entrenamiento al 17.1\% de prueba y Miraflores del 9.7\% al 16.6\%. Esto justifica evaluar errores por distrito, sin atribuir causas económicas solo a esos cambios.
+
+El baño faltante pertenece a entrenamiento y la antigüedad inválida a validación. La imputación debe ajustarse solo con entrenamiento y aplicarse a validación. Se verificaron 40,347 filas previas al IQR, con seis trimestres de entrenamiento, dos de validación y nueve de prueba. Los archivos de evidencia se encuentran en \texttt{reports/validacion\_temporal/}. No se entrenaron nuevos modelos: estos resultados acreditan la preparación y cobertura, no una mejora de precisión. Se mantienen las limitaciones de prueba previamente explorada, exclusiones manuales y selección condicionada por precio.
 
 \subsection{Medidas Adoptadas para Evitar Data Leakage}
 Para blindar el experimento contra cualquier transferencia indebida de información:
@@ -557,20 +587,20 @@ En valoración inmobiliaria, evaluar con una única métrica es insuficiente. Se
 \begin{table}[H]
 \centering
 \small
-\caption{Resultados comparativos en el conjunto de prueba temporal (2024--2026, $N = 25,048$).}
+\caption{Resultados comparativos en el conjunto de prueba temporal (2024--2026, $N = 25,042$).}
 \label{tab:resultados_comparativos}
 \begin{tabularx}{\textwidth}{lccccc}
 \toprule
 \textbf{Modelo / Estimador} & \textbf{MAE} & \textbf{RMSE} & \textbf{Error \% Mediano} & \textbf{MAPE} & \textbf{Error $\le$ 10\%} \\
 \midrule
-Dummy (Media) & 53,386 & 69,653 & 28.6\% & 36.9\% & 17.2\% \\
-Dummy (Mediana) & 54,908 & 73,539 & 28.9\% & 34.7\% & 18.6\% \\
-\textbf{Regla de mercado} & \textbf{28,597} & \textbf{38,350} & \textbf{14.9\%} & \textbf{18.4\%} & \textbf{34.5\%} \\
+Dummy (Media) & 53,378 & 69,644 & 28.6\% & 36.9\% & 17.2\% \\
+Dummy (Mediana) & 54,905 & 73,539 & 28.9\% & 34.7\% & 18.6\% \\
+\textbf{Regla de mercado} & \textbf{28,585} & \textbf{38,322} & \textbf{14.9\%} & \textbf{18.4\%} & \textbf{34.5\%} \\
 \midrule
-Ridge Regressor & 24,385 & 33,847 & 12.3\% & 15.1\% & 41.3\% \\
-ElasticNet & 38,028 & 52,053 & 19.4\% & 23.9\% & 26.3\% \\
-Random Forest Regressor & 23,942 & 33,781 & 11.8\% & 14.9\% & 43.5\% \\
-\textbf{CatBoost Regressor} & \textbf{23,000} & \textbf{32,685} & \textbf{11.3\%} & \textbf{14.2\%} & \textbf{45.3\%} \\
+Ridge Regressor & 24,370 & 33,791 & 12.3\% & 15.0\% & 41.3\% \\
+ElasticNet & 38,016 & 52,031 & 19.4\% & 23.9\% & 26.3\% \\
+Random Forest Regressor & 23,919 & 33,693 & 11.8\% & 14.9\% & 43.5\% \\
+\textbf{CatBoost Regressor} & \textbf{22,928} & \textbf{32,511} & \textbf{11.3\%} & \textbf{14.1\%} & \textbf{45.2\%} \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -578,9 +608,9 @@ Random Forest Regressor & 23,942 & 33,781 & 11.8\% & 14.9\% & 43.5\% \\
 \subsection{Interpretación Técnica de Resultados}
 La evidencia empírica condensada en el Cuadro \ref{tab:resultados_comparativos} arroja conclusiones técnicas fundamentales:
 \begin{enumerate}[leftmargin=1.5cm]
-    \item \textbf{CatBoost es el modelo ganador indiscutible:} Logra el menor error porcentual mediano (\textbf{11.3\%}), superando por \textbf{3.6 puntos porcentuales} a la regla de mercado (14.9\%). Asimismo, incrementa la proporción de anuncios tasados con alta precisión comercial ($\le 10\%$) del 34.5\% al \textbf{45.3\%}.
-    \item \textbf{Reducción del Riesgo Financiero:} El RMSE se redujo de US\$ 38,350 a \textbf{US\$ 32,685} (una disminución de más de US\$ 5,600), demostrando que CatBoost controla eficazmente desviaciones en propiedades de alto valor.
-    \item \textbf{Competitividad de Ridge vs. Fracaso de ElasticNet:} Ridge obtuvo un sobresaliente 12.3\% de MedAPE, confirmando que la combinación de escala logarítmica y \texttt{RobustScaler} linealiza con éxito gran parte del fenómeno. Por el contrario, ElasticNet (19.4\%) no logró batir a la regla de mercado debido a que su penalización $L_1$ por defecto comprimió en exceso coeficientes distritales cruciales.
+    \item \textbf{CatBoost es el mejor candidato de la comparación actual:} Logra el menor error porcentual mediano (\textbf{11.3\%}), superando por \textbf{3.6 puntos porcentuales} a la regla de mercado (14.9\%). Asimismo, incrementa la proporción de anuncios tasados con alta precisión comercial ($\le 10\%$) del 34.5\% al \textbf{45.2\%}.
+    \item \textbf{Reducción del Riesgo Financiero:} El RMSE se redujo de US\$ 38,322 a \textbf{US\$ 32,511} (una disminución de US\$ 5,811), sin demostrar por sí solo precisión uniforme por rango de precio.
+    \item \textbf{Competitividad de Ridge vs. Fracaso de ElasticNet:} Ridge obtuvo un sobresaliente 12.3\% de MedAPE, confirmando que la combinación de escala logarítmica y \texttt{RobustScaler} linealiza con éxito gran parte del fenómeno. Por el contrario, ElasticNet (19.4\%) no logró batir a la regla de mercado en la configuración evaluada; las causas requieren experimentación adicional.
 \end{enumerate}
 
 \subsection{Diagnóstico de Residuales del Modelo CatBoost}
@@ -595,8 +625,8 @@ Al analizar el gráfico de dispersión de valores reales frente a predichos (Fig
 
 \begin{enumerate}[leftmargin=1.5cm]
     \item \textbf{Alta fidelidad en el segmento estándar:} Entre US\$ 50,000 y US\$ 250,000, los puntos se alinean con extraordinaria densidad a lo largo de la diagonal ideal ($y = \widehat{y}$).
-    \item \textbf{Techo predictivo en el segmento de ultralujo ($> \text{US\$} 350,000$):} El modelo tiende a aplanar la curva, subestimando sistemáticamente los departamentos de lujo extremo. La causa raíz radica en la ausencia de atributos cualitativos en la base del BCRP (acabados de lujo, diseño arquitectónico, vista directa al mar o campos de golf).
-    \item \textbf{Disparidad periférica:} En distritos con escasa masa crítica en entrenamiento (ej. Carabayllo), los errores relativos crecen sustancialmente producto del desbalance muestral geográfico histórico.
+    \item \textbf{Techo predictivo en el segmento de ultralujo ($> \text{US\$} 350,000$):} El modelo tiende a aplanar la curva, subestimando sistemáticamente los departamentos de lujo extremo. Una hipótesis, pendiente de comprobar, es la ausencia de atributos cualitativos en la base del BCRP (acabados de lujo, diseño arquitectónico, vista directa al mar o campos de golf).
+    \item \textbf{Disparidad periférica:} En distritos con escasa masa crítica en entrenamiento (ej. Carabayllo), los errores relativos crecen sustancialmente lo que debe comprobarse con métricas y conteos por segmento.
 \end{enumerate}
 
 % ==============================================================================
@@ -607,14 +637,13 @@ Al analizar el gráfico de dispersión de valores reales frente a predichos (Fig
 \begin{itemize}[leftmargin=1.5cm]
     \item La regla empírica del mercado limeño (US\$/m$^2$ $\times$ área) comete un error porcentual mediano del 14.9\% en el período contemporáneo.
     \item El modelado con Machine Learning supervisado (especialmente CatBoost y Random Forest) sobre la variable objetivo transformada logarítmicamente reduce el error mediano a un competitivo \textbf{11.3\%}, demostrando viabilidad y utilidad comercial práctica.
-    \item El momento del mercado y la localización distrital dominan la varianza, pero la dotación de cocheras y antigüedad explican los diferenciales finos entre pares comparables.
+    \item Las asociaciones descriptivas justifican estudiar distrito y características físicas; su importancia predictiva requiere interpretabilidad. El preprocesador actual descarta año y trimestre como entradas del modelo.
 \end{itemize}
-san 
 \subsection{Problemas No Resueltos y Limitaciones Identificadas}
 \begin{enumerate}[leftmargin=1.5cm]
     \item \textbf{Subestimación en ultralujo:} El modelo no cuenta con descriptores para capturar el valor intangible en propiedades que superan los US\$ 400,000.
-    \item \textbf{Sesgo geográfico en conos:} Distritos periféricos recientemente incorporados sufren tasas de error superiores al 30\% debido a la escasez de datos históricos relativos y posibles errores de tipificación de inmuebles en los anuncios.
-    \item \textbf{Duplicados residuales sutiles:} Se identificaron 4 observaciones residuales con idénticos atributos físicos y distritales pero ligeras discrepancias temporales pendientes de auditoría profunda.
+    \item \textbf{Sesgo geográfico en conos:} El desempeño desigual por distrito debe cuantificarse junto con su número de observaciones antes de afirmar porcentajes o causas. La cobertura distrital incompleta limita la aplicación.
+    \item \textbf{Duplicados residuales sutiles:} Se revisaron cuatro pares de anuncios de 2024-T4: difieren en piso y se conservan deliberadamente, aunque esa variable no se utilice en el modelo.
 \end{enumerate}
 
 \subsection{Mejoras Metodológicas Planificadas para el TF1}

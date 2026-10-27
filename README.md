@@ -138,3 +138,42 @@ Cada herramienta se eligió por un rasgo concreto de nuestros datos. Se actualiz
 | Interpretabilidad | TF1 | SHAP (TreeSHAP) | Importancia nativa de variables MDI | SHAP explica cada predicción localmente en dólares reales, aportando transparencia al usuario |
 | Despliegue | TF1 | Streamlit | FastAPI | Permite que un usuario final ingrese los datos del departamento e interactúe con la tasación e intervalos en tiempo real |
 | Reproducibilidad | TP1 y TF1 | Git + requirements.txt + LaTeX | Carpeta compartida en Drive | Permite versionado colaborativo y redacción académica profesional reproducible |
+
+## Limpieza auditada hacia TF1
+
+Se excluyen 17 anuncios por decisión documentada del equipo; no se imputa el precio.
+La fuente original permanece intacta. Para regenerar la única base preparada actual:
+
+```powershell
+.\.venv\Scripts\python.exe scripts/preparar_datos_actuales.py
+```
+
+Se escribe `data/processed/base_modelado.parquet` (40,347 anuncios, 22 distritos,
+2022-T1 a 2026-T1), antes de IQR e imputación. Esta base local no se sube a Git.
+Los notebooks 03 y consolidado incorporan las exclusiones. El consolidado ya se
+ejecutó con la limpieza auditada y sus interpretaciones se actualizaron; el notebook
+03 debe ejecutarse si se desean sus salidas independientes.
+Decisiones y límites: [registro de limpieza](reports/auditoria_preparacion/decisiones_limpieza.md).
+
+Verificación sin entrenar modelos:
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_preparacion_auditada.py"
+```
+
+### Validación temporal del TF1
+
+Entrenamiento 2022-T1–2023-T2, validación 2023-T3/T4 y prueba 2024-T1–2026-T1.
+Después de seleccionar la configuración, reentrenar con todo 2022–2023.
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests
+.\.venv\Scripts\python.exe scripts/preparar_validacion_temporal.py
+```
+
+El segundo comando sobrescribe la misma base preparada con IDs, particiones y
+máscaras IQR; no entrena modelos ni imputa datos. Genera evidencia en
+`reports/validacion_temporal/` para revisar antes de experimentar.
+Consultar [protocolo de entrega](reports/protocolo_validacion_temporal.md) para
+seleccionar entradas sin incluir IDs ni máscaras. Los notebooks actuales conservan
+la comparación de referencia del TP1; no ejecutan todavía experimentos con validación.

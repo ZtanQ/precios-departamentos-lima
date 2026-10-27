@@ -1,0 +1,8 @@
+﻿modelo,mae_usd_redondeado,rmse_usd_redondeado,medape_pct_redondeado,mape_pct_redondeado,porcentaje_error_hasta10_redondeado
+Dummy (Media),53378,69644,28.6,36.9,17.2
+Dummy (Mediana),54905,73539,28.9,34.7,18.6
+Regla de mercado,28585,38322,14.9,18.4,34.5
+Ridge,24370,33791,12.3,15.0,41.3
+ElasticNet,38016,52031,19.4,23.9,26.3
+Random Forest,23919,33693,11.8,14.9,43.5
+CatBoost,22928,32511,11.3,14.1,45.2
