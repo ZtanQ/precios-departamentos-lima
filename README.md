@@ -1,179 +1,146 @@
-# Estimación del precio de departamentos en Lima Metropolitana
+# Estimación y Tasación Inteligente de Departamentos en Lima Metropolitana
 
-Proyecto Integrador de Data Science del curso **Data Mining Tools (CC209)**, UPC, 2026.
-Docente: Carlos Fernando Montoya Cubas.
+Proyecto Integrador de Data Science – **Trabajo Final (TF1)**  
+Curso: **Data Mining Tools (CC209)**, UPC, 2026.  
+Docente: **Carlos Fernando Montoya Cubas**
 
-## Problema
+---
 
-En Lima, los departamentos se anuncian en dólares y su precio se fija mirando otros anuncios del mismo distrito. Este proyecto busca estimar el **precio de oferta en dólares** de un departamento a partir de su distrito, metraje, dormitorios, baños, cocheras, antigüedad y trimestre de publicación.
+## 1. Resumen Ejecutivo y Problema
 
-- **Tipo de problema:** regresión supervisada.
-- **Unidad de análisis:** un anuncio de venta de un departamento en un trimestre.
-- **Referencia a superar:** la regla de mercado "mediana US$/m² del distrito × metraje", además de un DummyRegressor.
+En Lima Metropolitana, los departamentos se anuncian en dólares y su precio de oferta se fija tradicionalmente mediante reglas heurísticas del mercado inmobiliario (mediana de US$/m² del distrito × metraje).
 
-## Datos
+Este proyecto desarrolla una **solución de Data Science de extremo a extremo** para estimar el precio de lista de un departamento residencial a partir de sus atributos físicos y su localización espacial.
 
-| Campo | Valor |
-| --- | --- |
-| Fuente | Banco Central de Reserva del Perú (BCRP), base desagregada de precios de venta de departamentos |
-| Archivo original | `precios-inmobiliarios-bd-desagregada-venta-2026-1.xlsx`, hoja "Venta" |
-| Tamaño | 119,980 anuncios, 16 columnas |
-| Período | 1998-T1 a 2026-T1, trimestral |
-| Tipo de precio | Precio de oferta (anuncio), no precio final de venta |
+### Evolución Metodológica del TP1 al TF1
+Frente al Trabajo Parcial (TP1), el Trabajo Final (TF1) implementa cuatro saltos metodológicos sustanciales:
+1. **Modelado del Precio Unitario:** En lugar de predecir directamente el precio total (`precio_usd`), los modelos estiman el **precio unitario por metro cuadrado** (`precio_m2 = precio_usd / superficie_m2`) y reconstruyen el precio total en dólares. Esto desacopla el efecto del tamaño y estabiliza la varianza residual a lo largo de todas las tipologías.
+2. **Técnica de la 2da Mitad del Curso:** Incorporación de **Clustering Espacial de Submercados** ($K$-Means, $k=4$) e ingeniería de habitabilidad (`m2_por_habitacion`, `ratio_banos_habitacion`, `tipologia`, `ratio_sup_distrital`) con CERO data leakage.
+3. **Experimentación Sistemática con Optuna:** Partición triple *out-of-time* (Train Selección 2022-T1–2023-T2, Val 2023-T3/T4, Test Ciego 2024-T1–2026-T1) y optimización bayesiana de un **Ensamble Ponderado** (CatBoost 87.9%, Random Forest 10.4%, Ridge 1.7%).
+4. **Despliegue Funcional con Interpretabilidad:** Aplicación web interactiva en **Streamlit** (`app.py`) conectada al pipeline serializado en `.joblib`, con visualización de rangos comerciales de tolerancia ($\pm 11.1\%$) y explicaciones locales **TreeSHAP (Waterfall plot)** por departamento cotizado.
 
-- **Enlace de descarga oficial:** [BCRP - Indicador de Precios de Venta de Departamentos](https://www.bcrp.gob.pe/estadisticas/indicador-de-precios-de-venta-de-departamentos.html)
-- **Condiciones de uso y procedencia:** Portal de series estadísticas abiertas del Banco Central de Reserva del Perú (BCRPData). Los datos son de libre acceso con fines académicos, de estudio e investigación económica, citando la atribución institucional correspondiente. Metodología oficial disponible en [BCRP, Documento de Trabajo 006-2018](https://www.bcrp.gob.pe/docs/Publicaciones/Documentos-de-Trabajo/2018/documento-de-trabajo-006-2018.pdf) y [BCRP, Nota de Estudios 65-2025](https://www.bcrp.gob.pe/docs/Publicaciones/Notas-Estudios/2025/nota-de-estudios-65-2025.pdf).
+---
 
-### Sobre los archivos de datos
+## 2. Resultados Experimentales en Test Ciego (2024–2026, $N=25,042$)
 
-- `data/raw/precios_venta_bcrp_2026_1.parquet` está incluido en el repositorio. Es el Excel original convertido a Parquet, **sin ningún cambio en los datos** (1.9 MB en lugar de 65 MB).
-- El Excel original no se sube a GitHub por su tamaño. Si el BCRP publica una versión nueva, colócala en `data/raw/` y ejecuta `python scripts/convertir_excel_a_parquet.py`.
+Evaluación imparcial en horizonte temporal futuro no visto:
 
-## Estructura del repositorio
+| Modelo / Enfoque | MAE (US$) | RMSE (US$) | MedAPE | % Error $\le 10\%$ |
+| :--- | :---: | :---: | :---: | :---: |
+| **Dummy (Mediana TP1)** | \$54,905 | \$73,539 | 28.89% | 18.63% |
+| **Regla de Mercado (Tasador)** | \$28,585 | \$38,322 | 14.90% | 34.49% |
+| **Ridge Regressor (sobre m²)** | \$24,142 | \$33,531 | 12.31% | 41.63% |
+| **Random Forest (sobre m²)** | \$23,099 | \$32,679 | 11.25% | 45.39% |
+| **CatBoost Optimizado (sobre m²)** | \$22,701 | \$32,089 | 11.16% | 45.52% |
+| **Ensamble Ponderado TF1 (Ganador)** | **\$22,647** | **\$32,010** | **11.13%** | **45.63%** |
+
+*El Ensamble Ponderado bate con holgura a la regla tradicional del mercado inmobiliario (reducción de 3.77 puntos en MedAPE) y logra que el 45.63% de las tasaciones presenten un error $\le 10\%$.*
+
+---
+
+## 3. Matriz de Decisiones de Herramientas
+
+| Necesidad | Herramienta Elegida | Alternativa Considerada | Justificación Técnica de la Elección |
+| :--- | :--- | :--- | :--- |
+| **Pipeline & Preprocesamiento** | `scikit-learn` (`Pipeline`, `ColumnTransformer`) | Limpieza manual con pandas | Asegura que imputación, escalado robusto y codificación se ajusten exclusivamente con el conjunto de entrenamiento, previniendo fuga de datos. |
+| **Técnica 2da Mitad** | `K-Means Clustering` ($k=4$) | Redes Neuronales Profundas (MLP) | Segmenta distritos en clusters socio-inmobiliarios homogéneos e interpretables (Lima Top, Moderna, Centro, Periferia); un MLP aumentaría la complejidad y opacidad innecesariamente. |
+| **Optimización de Hiperparámetros** | `Optuna` | `GridSearchCV` / `RandomizedSearchCV` | Optimización bayesiana con TPE; converge más rápido a hiperparámetros óptimos y permite calibrar los pesos del ensamble sobre validación temporal. |
+| **Modelos del Ensamble** | CatBoost + Random Forest + Ridge | Modelos individuales aislados | La combinación de gradiente boosted, árboles no lineales y regularización lineal $L_2$ reduce el sesgo y la varianza, batiendo a cualquier estimador individual. |
+| **Interpretabilidad** | `TreeSHAP` (`TreeExplainer`) | Permutation Feature Importance | Fundamentada en valores Shapley de teoría de juegos; provee aditividad en escala de dólares y genera explicaciones locales (*waterfall plots*) para cada departamento. |
+| **Despliegue Funcional** | `Streamlit` | FastAPI + React | Permite desarrollar una interfaz interactiva y visual en Python para la demostración en vivo de 12 minutos requerida en la sustentación oral. |
+
+---
+
+## 4. Estructura del Repositorio
 
 ```
 precios-departamentos-lima/
 ├── data/
-│   ├── raw/          # datos originales (Parquet incluido; Excel fuera de Git)
-│   └── processed/    # datos limpios generados por los notebooks (fuera de Git)
-├── notebooks/
-│   ├── 01_problema_y_datos.ipynb       # problema, dataset, reglas de limpieza, baseline de mercado
-│   ├── 02_eda.ipynb                    # análisis exploratorio detallado
-│   ├── 03_preparacion_y_modelos.ipynb  # limpieza, pipeline, modelos y evaluación
-│   └── valoracion_inmobiliaria.ipynb   # NOTEBOOK CONSOLIDADO FINAL con todo el flujo integrado
+│   ├── raw/precios_venta_bcrp_2026_1.parquet   # Datos oficiales BCRP (119,980 anuncios)
+│   └── processed/base_modelado.parquet         # Base 2022-2026 (generada localmente)
+├── models/
+│   ├── modelo_inmobiliario_tf1.joblib          # Ensamble ponderado + preprocesador serializado
+│   └── clusterer_tf1.joblib                    # Estimador K-Means para submercados
+├── notebooks/                                  # Análisis exploratorio y prototipos
+│   ├── 01_problema_y_datos.ipynb
+│   ├── 02_eda.ipynb
+│   ├── 03_preparacion_y_modelos.ipynb
+│   ├── valoracion_inmobiliaria.ipynb           # Notebook Consolidado TP1
+│   └── valoracion_inmobiliaria_tf1.ipynb       # NOTEBOOK CONSOLIDADO FINAL DEL TF1 (Ejecutado)
 ├── src/
-│   ├── config.py     # rutas y decisiones compartidas (año de corte, semilla, columnas)
-│   ├── datos.py      # cargar_datos(): carga única para todo el equipo
-│   ├── limpieza.py   # reglas de limpieza y transformadores (FiltroIQRDistrito, normalización)
-│   ├── baseline.py   # regla de mercado (distrito × m²) como estimador de scikit-learn
-│   ├── metricas.py   # métricas comunes para comparar todos los modelos (MAE, RMSE, MedAPE, MAPE)
-│   └── modelos.py    # definición y pipelines de modelos (Ridge, ElasticNet, RF, CatBoost)
+│   ├── config.py                               # Rutas, constantes y particiones
+│   ├── datos.py                                # Carga única de datos
+│   ├── limpieza.py                             # Deduplicación y tratamiento IQR
+│   ├── ingenieria.py                           # ClusteringSubmercado y ratios de habitabilidad
+│   ├── validacion.py                           # Protocolo de partición temporal
+│   ├── baseline.py                             # Estimador ReglaMercadoM2
+│   ├── metricas.py                             # Cálculo de MAE, RMSE, MedAPE, MAPE
+│   └── modelos.py                              # Definición de EnsamblePonderadoPrecioM2
 ├── scripts/
-│   └── convertir_excel_a_parquet.py
-├── models/           # modelos entrenados (fuera de Git)
+│   ├── preparar_validacion_temporal.py         # Genera base_modelado.parquet con máscaras
+│   ├── ejecutar_experimentacion.py             # Script formal de Optuna y entrenamiento final
+│   └── analizar_interpretabilidad_errores.py   # Script de TreeSHAP y análisis de 50 residuos
 ├── reports/
-│   ├── figures/      # gráficos exportados para el informe y la presentación
-│   └── informe_tp1.tex # informe formal del TP1 en LaTeX
-├── requirements.txt
+│   ├── report.tex                              # Informe escrito original del TP1
+│   ├── report_tf1.tex                          # INFORME ESCRITO FINAL DEL TF1
+│   ├── interpretabilidad_errores/figuras/      # Gráficos SHAP y diagnóstico residual
+│   └── experimentos/registro_experimentos.csv  # Registro tabular de todas las corridas
+├── app.py                                      # APLICACIÓN INTERACTIVA EN STREAMLIT
+├── requirements.txt                            # Dependencias fijadas del proyecto
+├── PLAN_TF1.md                                 # Plan técnico y tabla de cambios TP1 vs TF1
+├── ESTADO_PROYECTO.md                          # Bitácora viva de control y verificación
 └── README.md
 ```
 
-## Instalación
+---
 
-Requiere Python 3.10 a 3.13.
+## 5. Instalación y Ejecución Rápida
+
+### Requisitos Previos
+* Python 3.10 a 3.12.
 
 ```bash
+# 1. Clonar el repositorio
 git clone <URL-del-repositorio>
 cd precios-departamentos-lima
 
+# 2. Crear y activar entorno virtual
 python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# Mac / Linux:
-source .venv/bin/activate
+source .venv/bin/activate       # En Linux/Mac
+# .venv\Scripts\activate        # En Windows
 
+# 3. Instalar dependencias
 pip install -r requirements.txt
 ```
 
-## Ejecución
-
+### Reproducción Completa del Pipeline
 ```bash
-jupyter notebook
+# Paso 1: Ejecutar pruebas unitarias
+python -m unittest discover -s tests
+
+# Paso 2: Generar datos y particiones out-of-time
+python scripts/preparar_validacion_temporal.py
+
+# Paso 3: Ejecutar optimización bayesiana y entrenar el ensamble final
+python scripts/ejecutar_experimentacion.py
+
+# Paso 4: Generar análisis SHAP y diagnóstico de residuos
+python scripts/analizar_interpretabilidad_errores.py
 ```
 
-Abrir los notebooks de la carpeta `notebooks/` en orden (01, 02, 03) o directamente el notebook unificado `valoracion_inmobiliaria.ipynb`. Cada uno carga los datos con:
-
-```python
-from src.datos import cargar_datos
-df = cargar_datos()
+### Iniciar la Aplicación Web (Streamlit)
+```bash
+streamlit run app.py
 ```
+*Se abrirá la aplicación interactiva en `http://localhost:8501` para tasar cualquier inmueble en vivo con explicaciones locales SHAP.*
 
-## Equipo
+---
 
-| Integrante | Rol / Bloque |
-| --- | --- |
-| Gabriel Alonzo Reyna Alvarado | Problema, dataset, reglas de limpieza, baseline de mercado y matriz de herramientas |
-| Guido Yair Abel Jeri Saldaña | Análisis exploratorio de datos (EDA) e interpretaciones |
-| José Guillermo Melgar Puertas | Limpieza, separación de datos out-of-time, pipeline, modelos y evaluación preliminar |
-| Piero Marcos Contreras Albornoz | Integración del repositorio, notebook final, plan hacia el TF1 y presentación |
+## 6. Equipo y Roles
 
-## Cómo trabajamos con Git
-
-1. Antes de empezar a trabajar: `git pull`.
-2. Cada uno trabaja en **su** notebook. Si dos personas editan el mismo notebook a la vez, Git no puede unir los cambios.
-3. Antes de subir: en Jupyter, *Kernel > Restart & Run All*, para que el notebook quede ejecutado de principio a fin.
-4. Subir los cambios:
-   ```bash
-   git add .
-   git commit -m "Descripción corta del cambio"
-   git push
-   ```
-5. Las decisiones compartidas (año de corte, columnas descartadas) se cambian solo en `src/config.py`, y se avisa al grupo.
-
-## Estado del TP1
-
-- [x] Estructura del repositorio y carga de datos
-- [x] Definición del problema, ficha técnica, reglas de limpieza propuestas y baseline de mercado (notebook 01)
-- [x] EDA exhaustivo con interpretaciones diferenciadas (notebook 02 y consolidado)
-- [x] Reglas de limpieza acordadas e implementadas en `src/limpieza.py` (deduplicación, normalización distrital, filtro IQR)
-- [x] Pipeline reproducible con `ColumnTransformer`, baselines y modelos en `src/modelos.py` (notebook 03)
-- [x] Notebook final consolidado (`notebooks/valoracion_inmobiliaria.ipynb`)
-- [x] Informe escrito formal en LaTeX (`reports/informe_tp1.tex`)
-- [x] Plan de trabajo hacia el TF1 documentado
-- [ ] Presentación (PDF o PPTX)
-
-## Decisiones de herramientas
-
-Cada herramienta se eligió por un rasgo concreto de nuestros datos. Se actualiza hacia el TF1.
-
-| Necesidad | Etapa | Herramienta elegida | Alternativa considerada | Justificación |
-| --- | --- | --- | --- | --- |
-| Carga y manipulación | TP1 | pandas | Excel / Power Query | Son 120 mil filas con reglas reproducibles. En Excel las correcciones son manuales y no quedan versionadas |
-| EDA | TP1 | Matplotlib + Seaborn | ydata-profiling (reporte automático) | El EDA gira alrededor del tiempo y del distrito. Un reporte automático no detecta que piso = 0 depende del año |
-| Preparación | TP1 | scikit-learn: Pipeline + ColumnTransformer + SimpleImputer + RobustScaler + OneHotEncoder | Limpieza manual en pandas antes de separar | El pipeline ajusta imputación, escalado y codificación solo con el entrenamiento, evitando fuga de datos |
-| Transformación del objetivo | TP1 | TransformedTargetRegressor (logaritmo natural del precio) | Precio sin transformar | El precio tiene fuerte asimetría positiva. En escala logarítmica el modelo optimiza errores porcentuales/relativos |
-| Baselines | TP1 | DummyRegressor (media y mediana) + regla de mercado (`src/baseline.py`) | Solo DummyRegressor | La regla de mercado (14.9% error mediano) es la referencia empírica real de los tasadores a superar |
-| Modelamiento | TP1 | Ridge, ElasticNet, Random Forest y CatBoost Regressor (`src/modelos.py`) | Redes neuronales / AutoML | CatBoost lideró con 11.3% de error mediano, capturando no linealidades espaciales complejas sin sobreajuste |
-| Experimentación | TF1 | Optuna + validación temporal (TimeSeriesSplit) + MLflow | GridSearchCV con validación aleatoria | Optuna explora eficientemente hiperparámetros respetando el orden cronológico estricto |
-| Interpretabilidad | TF1 | SHAP (TreeSHAP) | Importancia nativa de variables MDI | SHAP explica cada predicción localmente en dólares reales, aportando transparencia al usuario |
-| Despliegue | TF1 | Streamlit | FastAPI | Permite que un usuario final ingrese los datos del departamento e interactúe con la tasación e intervalos en tiempo real |
-| Reproducibilidad | TP1 y TF1 | Git + requirements.txt + LaTeX | Carpeta compartida en Drive | Permite versionado colaborativo y redacción académica profesional reproducible |
-
-## Limpieza auditada hacia TF1
-
-Se excluyen 17 anuncios por decisión documentada del equipo; no se imputa el precio.
-La fuente original permanece intacta. Para regenerar la única base preparada actual:
-
-```powershell
-.\.venv\Scripts\python.exe scripts/preparar_datos_actuales.py
-```
-
-Se escribe `data/processed/base_modelado.parquet` (40,347 anuncios, 22 distritos,
-2022-T1 a 2026-T1), antes de IQR e imputación. Esta base local no se sube a Git.
-Los notebooks 03 y consolidado incorporan las exclusiones. El consolidado ya se
-ejecutó con la limpieza auditada y sus interpretaciones se actualizaron; el notebook
-03 debe ejecutarse si se desean sus salidas independientes.
-Decisiones y límites: [registro de limpieza](reports/auditoria_preparacion/decisiones_limpieza.md).
-
-Verificación sin entrenar modelos:
-
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_preparacion_auditada.py"
-```
-
-### Validación temporal del TF1
-
-Entrenamiento 2022-T1–2023-T2, validación 2023-T3/T4 y prueba 2024-T1–2026-T1.
-Después de seleccionar la configuración, reentrenar con todo 2022–2023.
-
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests
-.\.venv\Scripts\python.exe scripts/preparar_validacion_temporal.py
-```
-
-El segundo comando sobrescribe la misma base preparada con IDs, particiones y
-máscaras IQR; no entrena modelos ni imputa datos. Genera evidencia en
-`reports/validacion_temporal/` para revisar antes de experimentar.
-Consultar [protocolo de entrega](reports/protocolo_validacion_temporal.md) para
-seleccionar entradas sin incluir IDs ni máscaras. Los notebooks actuales conservan
-la comparación de referencia del TP1; no ejecutan todavía experimentos con validación.
+| Integrante | Rol en el Trabajo Final (TF1) |
+| :--- | :--- |
+| **Gabriel Alonzo Reyna Alvarado** | Formulación de técnica adicional (K-Means Clustering), matriz de decisiones y evaluación de submercados. |
+| **Guido Yair Abel Jeri Saldaña** | Interpretabilidad con TreeSHAP (global/local) y diagnóstico sistemático de casos extremos de error. |
+| **José Guillermo Melgar Puertas** | Protocolo de partición temporal out-of-time, optimización con Optuna y calibración del Ensamble Ponderado. |
+| **Piero Marcos Contreras Albornoz** | Desarrollo de la aplicación interactiva en Streamlit, serialización del pipeline y documentación final en LaTeX. |

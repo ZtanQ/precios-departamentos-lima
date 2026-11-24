@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Sustentación TF1 - Data Mining Tools (CC209) UPC</title>
+<style>
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+  .slide { background-color: #1e293b; border-radius: 12px; padding: 40px; margin: 30px auto; max-width: 950px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); border-left: 6px solid #3b82f6; }
+  h1 { color: #60a5fa; font-size: 26px; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-top: 0; }
+  h2 { color: #93c5fd; font-size: 20px; }
+  .badge { display: inline-block; background-color: #2563eb; color: white; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
+  .timer { float: right; color: #fbbf24; font-weight: bold; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
+  th, td { border: 1px solid #334155; padding: 10px; text-align: left; }
+  th { background-color: #0f172a; color: #93c5fd; }
+  tr:nth-child(even) { background-color: #1a2234; }
+  .metric-card { background: #0f172a; border-radius: 8px; padding: 15px; text-align: center; border: 1px solid #334155; }
+  .metric-value { font-size: 24px; font-weight: bold; color: #34d399; margin: 5px 0; }
+  .metric-label { font-size: 12px; color: #94a3b8; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 15px 0; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 15px 0; }
+  ul { line-height: 1.6; }
+  strong { color: #38bdf8; }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1 -->
+<div class="slide">
+  <span class="timer">⏱️ 00:00 - 01:15</span>
+  <span class="badge">BLOQUE 1 | GABRIEL REYNA</span>
+  <h1>1. Problema de Negocio y Justificación</h1>
+  <p><strong>Curso:</strong> Data Mining Tools (CC209) – Docente: Carlos Fernando Montoya Cubas</p>
+  <ul>
+    <li><strong>El Reto:</strong> En Lima Metropolitana los inmuebles se ofrecen en dólares y la fijación de precios depende de heurísticas comerciales distritales.</li>
+    <li><strong>La Regla Tradicional de Tasación:</strong> <em>Mediana US$/m² del distrito × Metraje</em>. En el TP1 demostramos que comete un <strong>14.90% de error mediano</strong>.</li>
+    <li><strong>Objetivo del TF1:</strong> Desarrollar una solución reproducible que estime el precio de oferta en dólares a partir de variables estructurales y localización espacial, superando a la práctica pericial empírica y aportando intervalos de negociación e interpretabilidad aditiva.</li>
+  </ul>
+</div>
+
+<!-- SLIDE 2 -->
+<div class="slide">
+  <span class="timer">⏱️ 01:15 - 02:30</span>
+  <span class="badge">BLOQUE 1 | GABRIEL REYNA</span>
+  <h1>2. Evolución Metodológica Frente al TP1 y Técnica Adicional</h1>
+  <table>
+    <tr><th>Elemento</th><th>Estado TP1</th><th>Evolución TF1</th><th>Impacto Técnico</th></tr>
+    <tr><td><strong>Variable Objetivo</strong></td><td>precio_usd en log</td><td><strong>Precio Unitario US$/m²</strong> y reconstrucción en dólares</td><td>Desacopla el tamaño y estabiliza la varianza residual</td></tr>
+    <tr><td><strong>Técnica Adicional (2da Mitad)</strong></td><td>Ninguna</td><td><strong>Clustering Espacial de Submercados (K-Means, k=4)</strong></td><td>Descubre 4 macro-zonas homogéneas (Top, Moderna, Centro, Periferia)</td></tr>
+    <tr><td><strong>Validación</strong></td><td>Train / Test simple</td><td><strong>Triple Split Out-of-Time</strong> con Optuna</td><td>Cero data leakage en tuning de hiperparámetros</td></tr>
+    <tr><td><strong>Modelamiento</strong></td><td>CatBoost individual</td><td><strong>Ensamble Ponderado Calibrado</strong></td><td>Reduce varianza (CatBoost + RF + Ridge)</td></tr>
+    <tr><td><strong>Despliegue</strong></td><td>Notebooks</td><td><strong>Streamlit Web App</strong> con TreeSHAP local</td><td>Demostración funcional en tiempo real</td></tr>
+  </table>
+</div>
+
+<!-- SLIDE 3 -->
+<div class="slide">
+  <span class="timer">⏱️ 02:30 - 05:30</span>
+  <span class="badge">BLOQUE 2 | JOSÉ MELGAR</span>
+  <h1>3. Experimentación Sistemática y Resultados en Test Ciego (2024–2026)</h1>
+  <p>Evaluación imparcial sobre <strong>25,042 anuncios no vistos</strong> en un horizonte futuro de 2 años completos:</p>
+  <div class="grid-3">
+    <div class="metric-card"><div class="metric-label">Error Porcentual Mediano</div><div class="metric-value">11.13%</div><div class="metric-label">vs. 14.90% regla mercado</div></div>
+    <div class="metric-card"><div class="metric-label">Error Medio Absoluto (MAE)</div><div class="metric-value">$22,647</div><div class="metric-label">-$5,938 vs. regla mercado</div></div>
+    <div class="metric-card"><div class="metric-label">Tasa Acierto Comercial (≤10%)</div><div class="metric-value">45.63%</div><div class="metric-label">45.6% dentro de ±10%</div></div>
+  </div>
+  <table>
+    <tr><th>Modelo / Estrategia</th><th>MAE (US$)</th><th>RMSE (US$)</th><th>MedAPE</th><th>% Error ≤ 10%</th></tr>
+    <tr><td>Dummy (Mediana TP1)</td><td>$54,905</td><td>$73,539</td><td>28.89%</td><td>18.63%</td></tr>
+    <tr><td>Regla de Mercado (Tasador)</td><td>$28,585</td><td>$38,322</td><td>14.90%</td><td>34.49%</td></tr>
+    <tr><td>Ridge Regressor (sobre m²)</td><td>$24,142</td><td>$33,531</td><td>12.31%</td><td>41.63%</td></tr>
+    <tr><td>Random Forest (sobre m²)</td><td>$23,099</td><td>$32,679</td><td>11.25%</td><td>45.39%</td></tr>
+    <tr><td>CatBoost Optimizado (sobre m²)</td><td>$22,701</td><td>$32,089</td><td>11.16%</td><td>45.52%</td></tr>
+    <tr><td><strong>Ensamble Ponderado TF1 (Ganador)</strong></td><td><strong>$22,647</strong></td><td><strong>$32,010</strong></td><td><strong>11.13%</strong></td><td><strong>45.63%</strong></td></tr>
+  </table>
+</div>
+
+<!-- SLIDE 4 -->
+<div class="slide">
+  <span class="timer">⏱️ 05:30 - 08:30</span>
+  <span class="badge">BLOQUE 3 | PIERO CONTRERAS</span>
+  <h1>4. Demostración Funcional en Vivo (Streamlit App)</h1>
+  <p><strong>Ejecución en vivo de la aplicación web:</strong></p>
+  <ul>
+    <li><strong>Interacción en Tiempo Real:</strong> Se ingresan distrito (Miraflores), superficie (85 m²), dormitorios (3), baños (2), cocheras (1) y antigüedad (5 años).</li>
+    <li><strong>Inferencia Dinámica:</strong> El modelo calcula $196,540 con intervalo de negociación $\pm 11.1\%$ y valor unitario $2,184/m².</li>
+    <li><strong>Explicabilidad SHAP en Vivo:</strong> Pestaña interactiva con Waterfall Plot explicando qué características empujaron el precio al alza o a la baja.</li>
+    <li><strong>Arquitectura Desacoplada:</strong> La interfaz consume directamente <code>models/modelo_inmobiliario_tf1.joblib</code> empaquetado.</li>
+  </ul>
+</div>
+
+<!-- SLIDE 5 -->
+<div class="slide">
+  <span class="timer">⏱️ 08:30 - 11:00</span>
+  <span class="badge">BLOQUE 4 | GUIDO JERI</span>
+  <h1>5. Interpretabilidad TreeSHAP y Diagnóstico de Errores</h1>
+  <div class="grid-2">
+    <div>
+      <h2>TreeSHAP Global (Valor US$/m²)</h2>
+      <ul>
+        <li><strong>Submercado y Distrito:</strong> Los distritos del Cluster 0 (San Isidro/Miraflores) aportan el mayor incremento marginal unitario (+35%).</li>
+        <li><strong>Depreciación Inmobiliaria:</strong> La antigüedad ejerce penalizaciones monótonas coherentes con la teoría contable.</li>
+        <li><strong>Amplitud Interna:</strong> El ratio m²/hab distingue tipologías de lujo frente a estándares.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Diagnóstico de Casos Extremos</h2>
+      <ul>
+        <li><strong>Subestimación Severa (San Isidro):</strong> Deptos ofertados a $565k donde el modelo estima $298k. Corresponden a vista a parque/golf y acabados de lujo no registrados por el BCRP.</li>
+        <li><strong>Sobreestimación Severa (San Borja):</strong> Anuncios anómalos de $71k predichos en $270k (remates judiciales o venta de derechos y acciones).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6 -->
+<div class="slide">
+  <span class="timer">⏱️ 11:00 - 12:00</span>
+  <span class="badge">BLOQUE 5 | TODOS</span>
+  <h1>6. Conclusiones y Defensa Técnica</h1>
+  <ul>
+    <li><strong>Conclusión 1:</strong> Predecir el valor unitario (US$/m²) y reconstruir en dólares desacopla la escala y reduce la heterocedasticidad.</li>
+    <li><strong>Conclusión 2:</strong> El Ensamble Calibrado superó a todos los modelos individuales y redujo en 3.77 puntos porcentuales el error pericial del mercado.</li>
+    <li><strong>Limitación:</strong> El dataset oficial registra precios de oferta (anuncio publicitario), no precios notariales de cierre de venta.</li>
+  </ul>
+  <p style="text-align:center; font-size: 18px; color: #fbbf24; margin-top: 25px;"><strong>¡Muchas gracias! Quedamos a disposición para las preguntas del docente.</strong></p>
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,16 @@
+{
+    "estrategia": "estimacion_precio_m2_reconstruccion_usd",
+    "hiperparametros_catboost": {
+        "iterations": 400,
+        "depth": 7,
+        "learning_rate": 0.1011624519362815,
+        "l2_leaf_reg": 6.221448358742107
+    },
+    "pesos_ensamble": {
+        "w_cb": 0.28147527576345294,
+        "w_rf": 0.21661692932439047,
+        "w_rd": 0.0067651639986788855,
+        "w_lgb": 0.22088912776679878,
+        "w_xgb": 0.2742535031466789
+    }
+}
